@@ -1,0 +1,17 @@
+﻿version: '3.8'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: egeDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5438:5432"
+    volumes:
+      - ege_data:/var/lib/postgresql/data
+
+volumes:
+  ege_data:

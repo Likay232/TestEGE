@@ -1,9 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Infrastructure.Components;
 using WebApi.Infrastructure.Models.Requests;
+using WebApi.Infrastructure.Models.Storage;
 
 namespace WebApi.Services;
 
@@ -11,53 +14,57 @@ public class AuthService(DataComponent component)
 {
     public async Task<string?> LoginAdmin(Login request)
     {
-        if (request.UserName == "admin" && request.Password == "admin123")
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_123456789011";
+
+        Console.WriteLine(key);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_12345";
-            
-            Console.WriteLine(key);
+            Subject = new ClaimsIdentity([
+                new Claim(ClaimTypes.Name, request.Email),
+                new Claim(ClaimTypes.Role, "Admin")
+            ]),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                SecurityAlgorithms.HmacSha256Signature)
+        };
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity([
-                    new Claim(ClaimTypes.Name, request.UserName),
-                    new Claim(ClaimTypes.Role, "Admin")
-                ]),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
-
-        return null;
+        return tokenHandler.WriteToken(token);
     }
 
     public async Task<string?> Login(Login request)
     {
-        var user = component.Users.FirstOrDefault(u =>
-            u.Username == request.UserName && u.Password == request.Password);
-        
-        if (user == null || user.isBlocked)
+        if (request is { Email: "admin", Password: "admin123" })
+            return await LoginAdmin(request);
+
+        var user = await component.Users.FirstOrDefaultAsync(u =>
+            u.Email == request.Email && u.Password == request.Password);
+
+        if (user == null)
             return null;
-        
-        user.LastLogin = DateTime.Now;
-        await component.Update(user);
+
+        var blockEntry = await component.BlockUsers
+            .FirstOrDefaultAsync(b => b.UserId == user.Id);
+
+        if (blockEntry != null && blockEntry.BlockedUntil < DateTime.UtcNow)
+            return null;
+
+        if (blockEntry != null)
+            await component.Delete<BlockUser>(blockEntry.Id);
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_12345";
-        
+        var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_123456789011";
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, request.UserName),
-                new Claim(ClaimTypes.Role, "Client")
+                new Claim(ClaimTypes.Name, request.Email),
+                new Claim(ClaimTypes.Role, user.Role.RoleName)
             ]),
             Expires = DateTime.UtcNow.AddHours(3),
             SigningCredentials = new SigningCredentials(

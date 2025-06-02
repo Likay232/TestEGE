@@ -9,6 +9,7 @@ namespace WebApi.Controllers;
 [Route("[controller]/[action]")]
 public class ClientController(ClientService service) : ControllerBase
 {
+    /*
     [HttpGet]
     public async Task<ActionResult<List<ThemeDto>>> GetThemes()
     {
@@ -98,7 +99,7 @@ public class ClientController(ClientService service) : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
-
+    */
 
 
 }

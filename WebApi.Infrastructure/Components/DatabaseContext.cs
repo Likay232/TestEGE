@@ -9,7 +9,7 @@ public class DatabaseContext : DbContext
     
     public DatabaseContext()
     {
-        _connectionString = "Server=localhost;Port=5434;User Id=postgres;Password=12345;Database=postgres";
+        _connectionString = "Server=localhost;Port=5438;User Id=postgres;Password=12345;Database=egeDb";
     }
 
     public DatabaseContext(string connectionString)
@@ -25,21 +25,24 @@ public class DatabaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().ToTable("users");
-        modelBuilder.Entity<Theme>().ToTable("themes");
-        modelBuilder.Entity<TestTask>().ToTable("test_tasks");
-        modelBuilder.Entity<Test>().ToTable("tests");
-        modelBuilder.Entity<TaskForTest>().ToTable("tasks");
-        modelBuilder.Entity<Progress>().ToTable("progresses");
-        modelBuilder.Entity<Lesson>().ToTable("lessons");
-        modelBuilder.Entity<CompletedTask>().ToTable("completed_tasks");
+        modelBuilder.Entity<Variant>().ToTable("variants");
+        modelBuilder.Entity<BlockUser>().ToTable("block_users");
+        modelBuilder.Entity<Exercise>().ToTable("exercises");
+        modelBuilder.Entity<Group>().ToTable("groups");
+        modelBuilder.Entity<GroupStudent>().ToTable("group_students");
+        modelBuilder.Entity<StudentExercise>().ToTable("student_exercises");
+        modelBuilder.Entity<VariantAssignment>().ToTable("variant_assignments");
+        modelBuilder.Entity<VariantExercise>().ToTable("variant_exercises");
     }
     
     public DbSet<User> Users { get; set; }
-    public DbSet<Theme> Themes { get; set; }
-    public DbSet<TestTask> TestTasks { get; set; }
-    public DbSet<Lesson> Lessons { get; set; }
-    public DbSet<CompletedTask> CompletedTasks { get; set; }
-    public DbSet<Progress> Progresses { get; set; }
-    public DbSet<TaskForTest> Tasks { get; set; }
-    public DbSet<Test> Tests { get; set; }
+    public DbSet<Variant> Variants { get; set; }
+    public DbSet<Group> Groups { get; set; } 
+    public DbSet<BlockUser> BlockUsers { get; set; } 
+    public DbSet<Exercise> Exercises { get; set; } 
+    public DbSet<GroupStudent> GroupStudents { get; set; } 
+    public DbSet<Role> Roles { get; set; } 
+    public DbSet<StudentExercise> StudentExercises { get; set; } 
+    public DbSet<VariantAssignment> VariantAssignments { get; set; } 
+    public DbSet<VariantExercise> VariantExercises { get; set; } 
 }

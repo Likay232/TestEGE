@@ -8,16 +8,7 @@ namespace WebApi.Services;
 
 public class ClientService(DataComponent component)
 {
-    public async Task<List<ThemeDto>> GetThemes()
-    {
-        return await component.Themes.Select(t => new ThemeDto
-        {
-            Id = t.Id,
-            Title = t.Title,
-            Description = t.Description,
-        }).ToListAsync();
-    }
-
+    /*
     public async Task<List<TaskForClientDto>> GetTasksForTheme(GetTasks request)
     {
         if (!await component.Themes.AnyAsync(t => t.Id == request.ThemeId))
@@ -126,4 +117,5 @@ public class ClientService(DataComponent component)
             Score = $"{test.Answers.Count - wrongAnswers.Count} / {test.Answers.Count}"
         }; 
     }
+    */
 }

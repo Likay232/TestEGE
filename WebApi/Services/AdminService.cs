@@ -8,6 +8,7 @@ namespace WebApi.Services;
 
 public class AdminService(DataComponent component)
 {
+    /*
     public async Task<List<UserDto>> GetUsers()
     {
         return await component.Users
@@ -139,7 +140,7 @@ public class AdminService(DataComponent component)
 
     public async Task<string> CreateTest(CreateTest request)
     {
-        var newTest = new Test
+        var newTest = new Variant
         {
             Title = request.Title,
         };
@@ -170,5 +171,5 @@ public class AdminService(DataComponent component)
 
         return $"Тест успешно создан. ID: {newTest.Id}";
     }
-
+    */
 }

@@ -11,6 +11,7 @@ namespace WebApi.Controllers;
 [Route("[controller]/[action]")]
 public class AdminController(AdminService service) : ControllerBase
 {
+    /*
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetUsers()
     {
@@ -159,6 +160,6 @@ public class AdminController(AdminService service) : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
-
+    */
 
 }

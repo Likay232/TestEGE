@@ -6,13 +6,16 @@ namespace WebApi.Infrastructure.Components;
 public class DataComponent(string connectionString)
 {
     public IQueryable<User> Users => new DatabaseContext(connectionString).Users;
-    public IQueryable<Lesson> Lessons => new DatabaseContext(connectionString).Lessons;
-    public IQueryable<CompletedTask> CompletedTasks => new DatabaseContext(connectionString).CompletedTasks;
-    public IQueryable<Progress> Progresses => new DatabaseContext(connectionString).Progresses;
-    public IQueryable<TestTask> TestTasks => new DatabaseContext(connectionString).TestTasks;
-    public IQueryable<Theme> Themes => new DatabaseContext(connectionString).Themes;
-    public IQueryable<Test> Tests => new DatabaseContext(connectionString).Tests;
-    public IQueryable<TaskForTest> Tasks => new DatabaseContext(connectionString).Tasks;
+    public IQueryable<BlockUser> BlockUsers => new DatabaseContext(connectionString).BlockUsers;
+    public IQueryable<Exercise> Exercises => new DatabaseContext(connectionString).Exercises;
+    public IQueryable<Group> Groups => new DatabaseContext(connectionString).Groups;
+    public IQueryable<GroupStudent> GroupStudents => new DatabaseContext(connectionString).GroupStudents;
+    public IQueryable<Role> Roles => new DatabaseContext(connectionString).Roles;
+    public IQueryable<StudentExercise> StudentExercises => new DatabaseContext(connectionString).StudentExercises;
+    public IQueryable<Variant> Variants => new DatabaseContext(connectionString).Variants;
+    public IQueryable<VariantAssignment> VariantAssignments => new DatabaseContext(connectionString).VariantAssignments;
+    public IQueryable<VariantExercise> VariantExercises => new DatabaseContext(connectionString).VariantExercises;
+
     public async Task<bool> Insert<T>(T entityItem) where T : class
     {
         try
