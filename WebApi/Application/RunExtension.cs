@@ -80,8 +80,9 @@ public static class RunExtension
     {
         builder.Services.AddScoped<AdminService>();
         builder.Services.AddScoped<AuthService>();
-        builder.Services.AddScoped<ClientService>();
+        builder.Services.AddScoped<StudentService>();
         builder.Services.AddControllersWithViews();
+        builder.Services.AddRazorPages();
     }
 
 

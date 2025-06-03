@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace WebApi.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -13,7 +15,7 @@ namespace WebApi.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Roles",
+                name: "roles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -22,7 +24,7 @@ namespace WebApi.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.Id);
+                    table.PrimaryKey("PK_roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -44,9 +46,9 @@ namespace WebApi.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_users_Roles_RoleId",
+                        name: "FK_users_roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Roles",
+                        principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -104,6 +106,7 @@ namespace WebApi.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     TeacherId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -250,6 +253,15 @@ namespace WebApi.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "roles",
+                columns: new[] { "Id", "RoleName" },
+                values: new object[,]
+                {
+                    { 1, "Student" },
+                    { 2, "Teacher" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_block_users_UserId",
                 table: "block_users",
@@ -352,7 +364,7 @@ namespace WebApi.Infrastructure.Migrations
                 name: "users");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "roles");
         }
     }
 }

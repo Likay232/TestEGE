@@ -33,6 +33,9 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<StudentExercise>().ToTable("student_exercises");
         modelBuilder.Entity<VariantAssignment>().ToTable("variant_assignments");
         modelBuilder.Entity<VariantExercise>().ToTable("variant_exercises");
+        modelBuilder.Entity<Role>().ToTable("roles").HasData(
+            [new Role { Id = 1, RoleName = "Student"},
+             new Role { Id = 2, RoleName = "Teacher"},]);
     }
     
     public DbSet<User> Users { get; set; }

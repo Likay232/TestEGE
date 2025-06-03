@@ -7,7 +7,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class ClientController(ClientService service) : ControllerBase
+public class StudentController(StudentService service) : ControllerBase
 {
     /*
     [HttpGet]

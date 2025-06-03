@@ -6,31 +6,67 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class AuthController(AuthService service) : ControllerBase
+public class AuthController(AuthService service) : Controller
 {
+    [HttpGet]
+    public IActionResult Login()
+    {
+        return View();
+    }
+    
     [HttpPost]
-    public async Task<ActionResult<string>> LoginAdmin(Login request)
+    public async Task<IActionResult> Login([FromForm] Login request)
     {
         try
         {
-            return StatusCode(200, await service.LoginAdmin(request));
+            var loginResult = await service.Login(request);
+            
+            if (loginResult == null)
+                return RedirectToAction("Login", "Auth");
+            
+            if (string.IsNullOrEmpty(loginResult.Token))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,      
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            };
+
+            Response.Cookies.Append("AuthToken", loginResult.Token, cookieOptions);
+
+            return RedirectToAction("Index", loginResult.RoleName);
         }
-        catch (Exception e)
+        catch
         {
-            return StatusCode(500, e.Message);
+            return RedirectToAction("Login", "Auth");
         }
+    }
+    
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
     }
 
     [HttpPost]
-    public async Task<ActionResult<string?>> LoginClient(Login request)
+    public async Task<IActionResult> Register([FromForm] Register request)
     {
         try
         {
-            return StatusCode(200, await service.Login(request));
+            var registerResult = await service.Register(request);
+            
+            if (!registerResult)
+                return RedirectToAction("Register", "Auth");
+            
+            return RedirectToAction("Login", "Auth");
         }
         catch (Exception e)
         {
-            return StatusCode(500, e.Message);
+            return RedirectToAction("Register", "Auth");
         }
     }
 

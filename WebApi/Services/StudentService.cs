@@ -6,7 +6,7 @@ using WebApi.Infrastructure.Models.Storage;
 
 namespace WebApi.Services;
 
-public class ClientService(DataComponent component)
+public class StudentService(DataComponent component)
 {
     /*
     public async Task<List<TaskForClientDto>> GetTasksForTheme(GetTasks request)

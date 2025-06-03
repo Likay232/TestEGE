@@ -1,10 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Infrastructure.Components;
+using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
 using WebApi.Infrastructure.Models.Storage;
 
@@ -12,13 +12,11 @@ namespace WebApi.Services;
 
 public class AuthService(DataComponent component)
 {
-    public async Task<string?> LoginAdmin(Login request)
+    private async Task<LoginResult?> LoginAdmin(Login request)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_123456789011";
-
-        Console.WriteLine(key);
-
+        
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
@@ -33,10 +31,47 @@ public class AuthService(DataComponent component)
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return tokenHandler.WriteToken(token);
+        return new LoginResult
+        {
+            Token = tokenHandler.WriteToken(token),
+            RoleName = "Admin",
+        };
     }
 
-    public async Task<string?> Login(Login request)
+    public async Task<bool> Register(Register request)
+    {
+        if (request.Password != request.ConfirmPassword)
+            throw new Exception("Пароли не совпадают.");
+
+        var roleEntry = await component.Roles
+            .FirstOrDefaultAsync(r => r.RoleName == request.Role);
+        
+        if (roleEntry == null)
+            throw new Exception("Роль с таким названием не найдена.");
+
+        var user = await component.Users.FirstOrDefaultAsync(u =>
+            u.Email == request.Email);
+
+        if (user != null)
+            throw new Exception("Имя пользователя занято.");
+
+        var newUser = new User
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            Password = request.Password,
+            RoleId = roleEntry.Id,
+            DateOfBirth = DateTime.SpecifyKind(request.DateOfBirth, DateTimeKind.Utc),
+            TimeZone = request.TimeZone,
+            About = request.AboutMe
+        };
+
+        return await component.Insert(newUser);
+    }
+
+
+    public async Task<LoginResult?> Login(Login request)
     {
         if (request is { Email: "admin", Password: "admin123" })
             return await LoginAdmin(request);
@@ -73,6 +108,10 @@ public class AuthService(DataComponent component)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        return new LoginResult
+        {
+            Token = tokenHandler.WriteToken(token),
+            RoleName = user.Role.RoleName,
+        };
     }
 }

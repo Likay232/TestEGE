@@ -97,6 +97,10 @@ namespace WebApi.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("TeacherId")
                         .HasColumnType("integer");
 
@@ -144,7 +148,19 @@ namespace WebApi.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            RoleName = "Student"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            RoleName = "Teacher"
+                        });
                 });
 
             modelBuilder.Entity("WebApi.Infrastructure.Models.Storage.StudentExercise", b =>
