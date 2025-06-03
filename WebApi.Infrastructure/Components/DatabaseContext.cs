@@ -36,6 +36,7 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Role>().ToTable("roles").HasData(
             [new Role { Id = 1, RoleName = "Student"},
              new Role { Id = 2, RoleName = "Teacher"},]);
+        modelBuilder.Entity<ResetPass>().ToTable("reset_passes");
     }
     
     public DbSet<User> Users { get; set; }
@@ -47,5 +48,6 @@ public class DatabaseContext : DbContext
     public DbSet<Role> Roles { get; set; } 
     public DbSet<StudentExercise> StudentExercises { get; set; } 
     public DbSet<VariantAssignment> VariantAssignments { get; set; } 
-    public DbSet<VariantExercise> VariantExercises { get; set; } 
+    public DbSet<VariantExercise> VariantExercises { get; set; }
+    public DbSet<ResetPass> ResetPasses { get; set; }
 }

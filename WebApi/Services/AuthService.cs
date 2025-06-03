@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ public class AuthService(DataComponent component)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_123456789011";
-        
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
@@ -45,7 +46,7 @@ public class AuthService(DataComponent component)
 
         var roleEntry = await component.Roles
             .FirstOrDefaultAsync(r => r.RoleName == request.Role);
-        
+
         if (roleEntry == null)
             throw new Exception("Роль с таким названием не найдена.");
 
@@ -73,11 +74,11 @@ public class AuthService(DataComponent component)
 
     public async Task<LoginResult?> Login(Login request)
     {
-        if (request is { Email: "admin", Password: "admin123" })
+        if (request.Email == "admin" && request.Password == "admin123")
             return await LoginAdmin(request);
 
-        var user = await component.Users.FirstOrDefaultAsync(u =>
-            u.Email == request.Email && u.Password == request.Password);
+        var user = await component.Users.Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Email == request.Email && u.Password == request.Password);
 
         if (user == null)
             return null;
@@ -113,5 +114,66 @@ public class AuthService(DataComponent component)
             Token = tokenHandler.WriteToken(token),
             RoleName = user.Role.RoleName,
         };
+    }
+
+    public async Task<bool> SendResetMessage(string email)
+    {
+        if (!await component.Users.AnyAsync(u => u.Email == email))
+            throw new Exception("Пользователь с данным адресом электронной почты не найден.");
+
+        var token = Guid.NewGuid().ToString();
+
+        var newEntry = new ResetPass
+        {
+            Token = token,
+            UserId = await component.Users
+                .Where(u => u.Email == email)
+                .Select(u => u.Id)
+                .FirstAsync(),
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
+
+        if (!await component.Insert(newEntry))
+            return false;
+
+        var message = new MailMessage("noreply@example.com", email);
+
+        message.Subject = "Password Reset";
+        message.Body = $"Ссылка для восстановления пароля: http://localhost:5000/Auth/ResetPassword?token={token}";
+        try
+        {
+            using var client = new SmtpClient();
+            await client.SendMailAsync(message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<bool> ResetPassword(ResetPassword request)
+    {
+        var record = await component.ResetPasses
+            .FirstOrDefaultAsync(r => r.Token == request.Token);
+
+        if (record == null || record.Expires < DateTime.UtcNow)
+            return false;
+
+        var userId = record.UserId;
+
+        var user = await component.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null) return false;
+
+        user.Password = request.NewPassword;
+
+        if (await component.Update(user))
+        {
+            await component.Delete<ResetPass>(record.Id);
+            return true;
+        }
+        return false;
     }
 }

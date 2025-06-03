@@ -13,25 +13,25 @@ public class AuthController(AuthService service) : Controller
     {
         return View();
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Login([FromForm] Login request)
     {
         try
         {
             var loginResult = await service.Login(request);
-            
+
             if (loginResult == null)
                 return RedirectToAction("Login", "Auth");
-            
+
             if (string.IsNullOrEmpty(loginResult.Token))
             {
                 return RedirectToAction("Login", "Auth");
             }
-            
+
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true,      
+                HttpOnly = true,
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             };
@@ -45,7 +45,7 @@ public class AuthController(AuthService service) : Controller
             return RedirectToAction("Login", "Auth");
         }
     }
-    
+
     [HttpGet]
     public IActionResult Register()
     {
@@ -58,10 +58,10 @@ public class AuthController(AuthService service) : Controller
         try
         {
             var registerResult = await service.Register(request);
-            
+
             if (!registerResult)
                 return RedirectToAction("Register", "Auth");
-            
+
             return RedirectToAction("Login", "Auth");
         }
         catch (Exception e)
@@ -70,4 +70,56 @@ public class AuthController(AuthService service) : Controller
         }
     }
 
+    [HttpGet]
+    public IActionResult SendResetMessage()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SendResetMessage([FromForm] string email)
+    {
+        try
+        {
+            if (await service.SendResetMessage(email))
+                ViewBag.Message = "Сообщение для сброса пароля отправлено на почту.";
+            else
+                ViewBag.Message = "Ошибка при отправке сообщения.";
+        }
+        catch (Exception e)
+        {
+            ViewBag.Message = e.Message;
+        }
+
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult ResetPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ResetPassword([FromQuery] string token, [FromForm] string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            ViewBag.Message = "Пароль не может быть пустым.";
+            return View();
+        }
+        
+        var request = new ResetPassword
+        {
+            Token = token,
+            NewPassword = password
+        };
+
+        if (await service.ResetPassword(request))
+            ViewBag.Message = "Пароль успешно сброшен.";
+        else
+            ViewBag.Message = "Ошибка при сбросе пароля.";
+
+        return View();
+    }
 }

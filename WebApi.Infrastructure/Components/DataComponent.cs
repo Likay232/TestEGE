@@ -15,7 +15,8 @@ public class DataComponent(string connectionString)
     public IQueryable<Variant> Variants => new DatabaseContext(connectionString).Variants;
     public IQueryable<VariantAssignment> VariantAssignments => new DatabaseContext(connectionString).VariantAssignments;
     public IQueryable<VariantExercise> VariantExercises => new DatabaseContext(connectionString).VariantExercises;
-
+    public IQueryable<ResetPass> ResetPasses => new DatabaseContext(connectionString).ResetPasses;
+    
     public async Task<bool> Insert<T>(T entityItem) where T : class
     {
         try

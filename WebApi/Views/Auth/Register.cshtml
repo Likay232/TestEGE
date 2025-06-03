@@ -156,7 +156,7 @@
     <button type="submit">Зарегистрироваться</button>
 
     <div class="footer">
-        Уже зарегистрированы? <a asp-controller="Auth" asp-action="Login">Войти</a>
+        Уже зарегистрированы? <a href="@Url.Action("Login", "Auth")">Войти</a>
     </div>
 </form>
 </body>

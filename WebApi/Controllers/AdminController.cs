@@ -9,8 +9,14 @@ namespace WebApi.Controllers;
 [ApiController]
 [Authorize]
 [Route("[controller]/[action]")]
-public class AdminController(AdminService service) : ControllerBase
+public class AdminController(AdminService service) : Controller
 {
+    [HttpGet]
+    public IActionResult Index()
+    {
+        return View();
+    }
+    
     /*
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetUsers()

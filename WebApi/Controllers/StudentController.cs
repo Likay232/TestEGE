@@ -7,8 +7,12 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class StudentController(StudentService service) : ControllerBase
+public class StudentController(StudentService service) : Controller
 {
+    public IActionResult Index()
+    {
+        return View();
+    }
     /*
     [HttpGet]
     public async Task<ActionResult<List<ThemeDto>>> GetThemes()

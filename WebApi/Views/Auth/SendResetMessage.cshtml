@@ -1,0 +1,76 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>Сброс пароля — Запрос</title>
+    <style>
+        body {
+            font-family: Segoe UI, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .reset-request {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="reset-request">
+    <h2>Запрос сброса пароля</h2>
+    <form method="post">
+        <label for="email">Введите вашу почту</label>
+        <input type="email" id="email" name="email" required />
+        <button type="submit">Отправить</button>
+    </form>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="message">@ViewBag.Message</div>
+    }
+</div>
+</body>
+</html>
