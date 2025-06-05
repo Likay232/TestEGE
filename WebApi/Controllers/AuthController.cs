@@ -114,7 +114,7 @@ public class AuthController(AuthService service) : Controller
             Token = token,
             NewPassword = password
         };
-
+        
         if (await service.ResetPassword(request))
             ViewBag.Message = "Пароль успешно сброшен.";
         else

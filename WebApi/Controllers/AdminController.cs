@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
 using WebApi.Services;
@@ -7,7 +6,6 @@ using WebApi.Services;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("[controller]/[action]")]
 public class AdminController(AdminService service) : Controller
 {
@@ -16,7 +14,29 @@ public class AdminController(AdminService service) : Controller
     {
         return View();
     }
-    
+
+    [HttpGet]
+    public async Task<IActionResult> Users()
+    {
+        return View(await service.GetUsers());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditUser(int userId)
+    {
+        return View(await service.GetUserToEdit(userId));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditUser([FromForm] EditUser user)
+    {
+        if (await service.EditUser(user))
+            return RedirectToAction("Users");
+        
+        ViewBag.Message = "Ошибка обновления пользователя.";
+        return View(user);
+    }
+
     /*
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetUsers()
@@ -24,7 +44,7 @@ public class AdminController(AdminService service) : Controller
         try
         {
             var users = await service.GetUsers();
-            
+
             return StatusCode(200, users);
         }
         catch (Exception e)
@@ -32,7 +52,7 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<bool>> ChangeUserPassword(ChangePassword request)
     {
@@ -45,14 +65,14 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpGet]
     public async Task<ActionResult<List<ThemeDto>>> GetThemes()
     {
         try
         {
             var themes = await service.GetThemes();
-            
+
             return StatusCode(200, themes);
         }
         catch (Exception e)
@@ -60,7 +80,7 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<bool>> CreateNewTheme(CreateTheme request)
     {
@@ -73,7 +93,7 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<bool>> AddTaskForTheme(TaskDto taskToAdd)
     {
@@ -86,7 +106,7 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<bool>> EditTaskForTheme(TaskDto updatedEntry)
     {
@@ -132,7 +152,7 @@ public class AdminController(AdminService service) : Controller
         try
         {
             var tasks = await service.GetTasks();
-            
+
             return StatusCode(200, tasks);
         }
         catch (Exception e)
@@ -140,7 +160,7 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<string>> CreateTest(CreateTest request)
     {
@@ -167,5 +187,4 @@ public class AdminController(AdminService service) : Controller
         }
     }
     */
-
 }

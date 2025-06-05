@@ -43,8 +43,9 @@ public class DataComponent(string connectionString)
             await context.SaveChangesAsync();
             return true;
         }
-        catch
+        catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return false;
         }
     }

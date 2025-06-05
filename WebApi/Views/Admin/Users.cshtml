@@ -1,0 +1,48 @@
+﻿@model List<WebApi.Infrastructure.Models.DTO.UserForAdminDto>
+
+@{
+    ViewBag.Title = "Пользователи";
+    Layout = "_AdminLayout";
+}
+
+<h2>Список пользователей</h2>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Статус</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.FirstName</td>
+            <td>@user.LastName</td>
+            <td>
+                @if (user.IsBlocked)
+                {
+                    <span class="text-danger">Заблокирован</span>
+                }
+                else
+                {
+                    <span class="text-success">Активен</span>
+                }
+            </td>
+            <td>
+                <a class="btn btn-sm btn-secondary ms-2"
+                   href="@Url.Action("EditUser", "Admin", new { userId = user.Id })">
+                    Редактировать пользователя
+                </a>
+                <a class="btn btn-sm btn-secondary ms-2"
+                   href="@Url.Action("DeleteUser", "Admin", new { userId = user.Id })">
+                    Удалить пользователя
+                </a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
