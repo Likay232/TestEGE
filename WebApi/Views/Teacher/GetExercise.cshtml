@@ -43,9 +43,13 @@
                 @(Model.AttachmentRequired ? "Да" : "Нет")
             </p>
 
-            <a href="@Url.Action("MyExercises", "Teacher")" class="btn btn-secondary mt-3">Назад к списку</a>
-            <a href="@Url.Action("EditExercise", "Teacher", new {id = @Model.Id})" class="btn btn-secondary mt-3">Редактировать задание</a>
-            <a href="@Url.Action("DeleteExercise", "Teacher")" class="btn btn-secondary mt-3">Удалить задание</a>
+            <a href="javascript:history.back()" class="btn btn-secondary mt-3">Назад</a>
+            
+            @if (Model.ModerationPassed && Model.TeacherId == ViewBag.TeacherId)
+            {
+                <a href="@Url.Action("EditExercise", "Teacher", new { id = @Model.Id })" class="btn btn-secondary mt-3">Редактировать задание</a>
+                <a href="@Url.Action("DeleteExercise", "Teacher")" class="btn btn-secondary mt-3">Удалить задание</a>
+            }
         </div>
     </div>
 </div>

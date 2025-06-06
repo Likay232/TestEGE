@@ -42,11 +42,35 @@ public class TeacherService(DataComponent component)
         return await component.Update(userEntry);
     }
 
-    public async Task<List<ExerciseDto>> GetExercises(int userId)
+    public async Task<List<ExerciseDto>> GetAllExercises()
     {
         return await component.Exercises
             .Include(ex => ex.Teacher)
-            .Where(ex => ex.ModerationPassed && ex.TeacherId == userId)
+            .Where(ex => ex.ModerationPassed)
+            .Select(ex => new ExerciseDto
+            {
+                Id = ex.Id,
+                Text = ex.Text,
+                Answer = ex.Answer,
+                Year = ex.Year,
+                ExerciseFilePath = ex.ExerciseFilePath,
+                SolutionFilePath = ex.SolutionFilePath,
+                EgeNumber = ex.EgeNumber,
+                AttachmentRequired = ex.AttachmentRequired,
+                ModerationPassed = ex.ModerationPassed,
+                TeacherId = ex.TeacherId,
+                TeacherFirstName = ex.Teacher.FirstName,
+                TeacherLastName = ex.Teacher.LastName,
+            })
+            .ToListAsync();
+
+    }
+
+    public async Task<List<ExerciseDto>> GetMyExercises(int userId)
+    {
+        return await component.Exercises
+            .Include(ex => ex.Teacher)
+            .Where(ex => ex.TeacherId == userId)
             .Select(ex => new ExerciseDto
             {
                 Id = ex.Id,
@@ -80,6 +104,7 @@ public class TeacherService(DataComponent component)
                 SolutionFilePath = ex.SolutionFilePath,
                 EgeNumber = ex.EgeNumber,
                 AttachmentRequired = ex.AttachmentRequired,
+                ModerationPassed = ex.ModerationPassed,
                 TeacherId = ex.TeacherId,
                 TeacherFirstName = ex.Teacher.FirstName,
                 TeacherLastName = ex.Teacher.LastName,
@@ -116,7 +141,7 @@ public class TeacherService(DataComponent component)
         return await component.Insert(newEntry);
     }
 
-    public async Task<List<VariantDto>> GetVariants(int teacherId)
+    public async Task<List<VariantDto>> GetMyVariants(int teacherId)
     {
         return await component.Variants
             .Include(v => v.Teacher)
@@ -131,9 +156,23 @@ public class TeacherService(DataComponent component)
             .ToListAsync();
     }
 
-    public async Task<VariantDto> GetVariant(int variantId, int teacherId)
+    public async Task<List<VariantDto>> GetAllVariants()
     {
-        if (!await component.Variants.AnyAsync(v => v.Id == variantId && v.TeacherId == teacherId))
+        return await component.Variants
+            .Include(v => v.Teacher)
+            .Select(v => new VariantDto
+            {
+                Id = v.Id,
+                Title = v.Title,
+                TeacherFirstName = v.Teacher.FirstName,
+                TeacherLastName = v.Teacher.LastName,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<VariantDto> GetVariant(int variantId)
+    {
+        if (!await component.Variants.AnyAsync(v => v.Id == variantId))
             throw new Exception("Вариант не найден.");
 
         var exercises = await GetExercisesForVariant(variantId);
@@ -145,6 +184,7 @@ public class TeacherService(DataComponent component)
             {
                 Id = v.Id,
                 Title = v.Title,
+                TeacherId = v.TeacherId,
                 TeacherFirstName = v.Teacher.FirstName,
                 TeacherLastName = v.Teacher.LastName,
                 Exercises = exercises,
@@ -152,6 +192,43 @@ public class TeacherService(DataComponent component)
             })
             .FirstAsync();
     }
+    
+    public async Task<bool> AddVariant(AddVariant request)
+    {
+        var newVariant = new Variant
+        {
+            Title = request.Title,
+            TeacherId = request.TeacherId,
+        };
+        
+        await component.Insert(newVariant);
+        
+        foreach (var exercise in request.Exercises)
+        {
+            var newVariantExercise = new VariantExercise
+            {
+                VariantId = newVariant.Id,
+                ExerciseId = exercise,
+            };
+            
+            await component.Insert(newVariantExercise);
+        }
+
+        foreach (var user in request.AssignedUsers)
+        {
+            var newAssignment = new VariantAssignment
+            {
+                VariantId = newVariant.Id,
+                StudentId = user,
+                TeacherId = newVariant.TeacherId,
+            };
+            
+            await component.Insert(newAssignment);
+        }
+
+        return true;
+    }
+
 
     private async Task<List<ExerciseDto>> GetExercisesForVariant(int variantId)
     {
@@ -199,43 +276,26 @@ public class TeacherService(DataComponent component)
             })
             .ToListAsync();
     }
-
-    public async Task<bool> AddVariant(AddVariant request)
+    
+    public async Task<UserForAdminDto> GetStudent(int userId)
     {
-        var newVariant = new Variant
-        {
-            Title = request.Title,
-            TeacherId = request.TeacherId,
-        };
+        if (!await component.Users.AnyAsync(u => u.Id == userId))
+            throw new Exception("Пользователь с заданным Id не найден.");
         
-        await component.Insert(newVariant);
-        
-        foreach (var exercise in request.Exercises)
-        {
-            var newVariantExercise = new VariantExercise
+        return await component.Users
+            .Select(u => new UserForAdminDto
             {
-                VariantId = newVariant.Id,
-                ExerciseId = exercise,
-            };
-            
-            await component.Insert(newVariantExercise);
-        }
-
-        foreach (var user in request.AssignedUsers)
-        {
-            var newAssignment = new VariantAssignment
-            {
-                VariantId = newVariant.Id,
-                StudentId = user,
-                TeacherId = newVariant.TeacherId,
-            };
-            
-            await component.Insert(newAssignment);
-        }
-
-        return true;
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                DateOfBirth = u.DateOfBirth,
+                TimeZone = u.TimeZone,
+                About = u.About
+            })
+            .FirstAsync(u => u.Id == userId);
     }
-
+    
     public async Task<List<GroupDto>> GetGroups(int teacherId)
     {
         return await component.Groups

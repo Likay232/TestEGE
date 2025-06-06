@@ -1,7 +1,7 @@
 ﻿@model WebApi.Infrastructure.Models.DTO.VariantDto
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Вариант";
     Layout = "_TeacherLayout";
 }
 
@@ -51,19 +51,22 @@
 
     <div class="d-flex gap-2">
         <a class="btn btn-secondary"
-           href="@Url.Action("MyVariants", "Teacher")">
+           href="javascript:history.back()">
             Назад
         </a>
 
-        <a class="btn btn-primary"
-           href="@Url.Action("EditVariant", "Teacher", new { variantId = Model.Id })">
-            Редактировать вариант
-        </a>
+        @if (Model.TeacherId == ViewBag.TeacherId)
+        {
+            <a class="btn btn-primary"
+               href="@Url.Action("EditVariant", "Teacher", new { variantId = Model.Id })">
+                Редактировать вариант
+            </a>
 
-        <a class="btn btn-danger"
-           href="@Url.Action("DeleteVariant", "Teacher", new { variantId = Model.Id })"
-           onclick="return confirm('Вы уверены, что хотите удалить этот вариант?');">
-            Удалить вариант
-        </a>
+            <a class="btn btn-danger"
+               href="@Url.Action("DeleteVariant", "Teacher", new { variantId = Model.Id })"
+               onclick="return confirm('Вы уверены, что хотите удалить этот вариант?');">
+                Удалить вариант
+            </a>
+        }
     </div>
 </div>

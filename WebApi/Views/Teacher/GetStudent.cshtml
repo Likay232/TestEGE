@@ -1,0 +1,24 @@
+﻿@model WebApi.Infrastructure.Models.DTO.UserForAdminDto
+
+@{
+    ViewBag.Title = "Информация о студенте";
+    Layout = "_TeacherLayout";
+}
+
+<h2 class="mb-4">Информация о студенте</h2>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-body">
+        <h4 class="card-title">@Model.LastName @Model.FirstName</h4>
+        <p class="card-text"><strong>Email:</strong> <a href="mailto:@Model.Email">@Model.Email</a></p>
+        <p class="card-text"><strong>Дата рождения:</strong> @Model.DateOfBirth.ToString("dd.MM.yyyy")</p>
+        <p class="card-text"><strong>Часовой пояс:</strong> @Model.TimeZone</p>
+        @if (!string.IsNullOrWhiteSpace(Model.About))
+        {
+            <p class="card-text"><strong>О студенте:</strong> @Model.About</p>
+        }
+    </div>
+    <div class="card-footer text-end">
+        <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>
+    </div>
+</div>

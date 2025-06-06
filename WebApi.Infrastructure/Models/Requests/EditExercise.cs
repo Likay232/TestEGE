@@ -11,6 +11,7 @@ public class EditExercise
     public int EgeNumber { get; set; }
     
     public bool AttachmentRequired { get; set; }
+    public bool ModerationPassed { get; set; }
     public int TeacherId { get; set; }
     public string TeacherLastName { get; set; }
     public string TeacherFirstName { get; set; }

@@ -44,12 +44,14 @@ public class TeacherController(TeacherService service) : Controller
     {
         var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
-        return View(await service.GetExercises(userId));
+        return View(await service.GetMyExercises(userId));
     }
     
     [HttpGet]
     public async Task<IActionResult> GetExercise(int id)
     {
+        ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
         return View(await service.GetExerciseToEdit(id));
     }
 
@@ -94,15 +96,15 @@ public class TeacherController(TeacherService service) : Controller
     {
         var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
-        return View(await service.GetVariants(userId));
+        return View(await service.GetMyVariants(userId));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetVariant(int variantId)
     {
-        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
-        return View(await service.GetVariant(variantId, userId));
+        return View(await service.GetVariant(variantId));
     }
 
     [HttpGet]
@@ -110,10 +112,10 @@ public class TeacherController(TeacherService service) : Controller
     {
         var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
-        ViewBag.AllExercises = await service.GetExercises(userId);
+        ViewBag.AllExercises = await service.GetAllExercises();
         ViewBag.AllStudents = await service.GetStudents();
 
-        return View(await service.GetVariant(variantId, userId));
+        return View(await service.GetVariant(variantId));
     }
 
     [HttpGet]
@@ -121,7 +123,7 @@ public class TeacherController(TeacherService service) : Controller
     {
         var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
-        ViewBag.AllExercises = await service.GetExercises(userId);
+        ViewBag.AllExercises = await service.GetMyExercises(userId);
         ViewBag.AllStudents = await service.GetStudents();
         
         return View();
@@ -210,5 +212,29 @@ public class TeacherController(TeacherService service) : Controller
         ViewBag.Students = await service.GetStudents();
 
         return View(newGroup);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Students()
+    {
+        return View(await service.GetStudents());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetStudent(int studentId)
+    {
+        return View(await service.GetStudent(studentId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AllExercises()
+    {
+        return View(await service.GetAllExercises());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AllVariants()
+    {
+        return View(await service.GetAllVariants());
     }
 }

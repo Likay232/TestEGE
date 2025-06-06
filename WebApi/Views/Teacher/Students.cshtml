@@ -1,0 +1,41 @@
+﻿@model System.Collections.Generic.List<WebApi.Infrastructure.Models.DTO.UserForAdminDto>
+
+@{
+    ViewBag.Title = "Студенты";
+    Layout = "_TeacherLayout";
+}
+
+<h2>Список пользователей</h2>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Статус</th>
+        <th></th> <!-- столбец для кнопки -->
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.FirstName</td>
+            <td>@user.LastName</td>
+            <td>
+                @if (user.IsBlocked)
+                {
+                    <span class="text-danger">Заблокирован</span>
+                }
+                else
+                {
+                    <span class="text-success">Активен</span>
+                }
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" href="@Url.Action("GetStudent", new { studentId = user.Id })">Подробнее</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
