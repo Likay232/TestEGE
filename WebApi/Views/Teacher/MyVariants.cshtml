@@ -11,16 +11,21 @@
         <a class="btn btn-success" href="@Url.Action("AddVariant", "Teacher")">Добавить вариант</a>
     </div>
 
+    <input type="text" id="searchBox" class="form-control mb-4" placeholder="Поиск по ID варианта">
+
     @if (Model != null && Model.Any())
     {
-        <div class="list-group">
+        <div id="variantList" class="list-group">
             @foreach (var variant in Model)
             {
-                <div class="list-group-item">
+                <div class="list-group-item" data-id="@variant.Id">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-1">@variant.Title</h5>
                             <small>Преподаватель: @variant.TeacherLastName @variant.TeacherFirstName</small>
+                            <div class="mt-2">
+                                <span class="badge bg-secondary">ID: @variant.Id</span>
+                            </div>
                         </div>
                         <a class="btn btn-outline-primary"
                            href="@Url.Action("GetVariant", "Teacher", new { variantId = variant.Id })">
@@ -36,3 +41,18 @@
         <div class="alert alert-info">Нет доступных вариантов.</div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const items = document.querySelectorAll('#variantList .list-group-item');
+
+        searchBox.addEventListener('input', function () {
+            const query = this.value.trim();
+            items.forEach(item => {
+                const id = item.dataset.id.toString();
+                item.style.display = id.includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+}
