@@ -1,0 +1,94 @@
+﻿@model WebApi.Infrastructure.Models.Requests.EditExercise
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_TeacherLayout";
+}
+
+<style>
+    form.custom-form {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 25px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        font-family: sans-serif;
+    }
+
+    .custom-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .custom-form input,
+    .custom-form textarea,
+    .custom-form select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        transition: border-color 0.2s;
+    }
+
+    .custom-form input:focus,
+    .custom-form textarea:focus,
+    .custom-form select:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    .custom-form button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .custom-form button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<form method="post" enctype="multipart/form-data" class="custom-form">
+    <input type="hidden" name="Id" value="@Model.Id" />
+
+    <label for="Year">Год</label>
+    <input id="Year" name="Year" type="number" required value="@Model.Year" />
+
+    <label for="EgeNumber">Номер ЕГЭ</label>
+    <input id="EgeNumber" name="EgeNumber" type="number" required value="@Model.EgeNumber" />
+
+    <label for="Text">Текст задания</label>
+    <textarea id="Text" name="Text" rows="4" required>@Model.Text</textarea>
+
+    <label for="Answer">Ответ</label>
+    <input id="Answer" name="Answer" type="text" required value="@Model.Answer" />
+
+    <label for="ExerciseFile">Файл задания</label>
+    <input id="ExerciseFile" name="ExerciseFile" type="file" />
+
+    <label for="SolutionFile">Файл решения</label>
+    <input id="SolutionFile" name="SolutionFile" type="file" />
+
+    <label for="AttachmentRequired">Требуется прикрепление файла</label>
+    <select id="AttachmentRequired" name="AttachmentRequired">
+        <option value="true" @(Model.AttachmentRequired ? "selected" : "")>Да</option>
+        <option value="false" @(!Model.AttachmentRequired ? "selected" : "")>Нет</option>
+    </select>
+    
+    <button type="submit">Сохранить</button>
+</form>
+
+@if (ViewBag.Message != null)
+{
+    <div style="color: red; font-weight: bold; margin-top: 15px;">
+        @ViewBag.Message
+    </div>
+}

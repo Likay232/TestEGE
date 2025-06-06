@@ -1,8 +1,7 @@
 ﻿namespace WebApi.Infrastructure.Models.Requests;
 
-public class EditExercise
+public class AddExercise
 {
-    public int Id { get; set; }
     public int Year { get; set; }
     public string Text { get; set; }
     public string Answer { get; set; }
@@ -12,6 +11,5 @@ public class EditExercise
     
     public bool AttachmentRequired { get; set; }
     public int TeacherId { get; set; }
-    public string TeacherLastName { get; set; }
-    public string TeacherFirstName { get; set; }
+
 }

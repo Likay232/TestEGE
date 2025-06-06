@@ -1,0 +1,58 @@
+﻿@model WebApi.Infrastructure.Models.Requests.AddExercise
+
+@{
+    ViewBag.Title = "Добавить задание";
+    Layout = "_TeacherLayout";
+
+    var year = Model?.Year ?? 0;
+    var egeNumber = Model?.EgeNumber ?? 0;
+    var text = Model?.Text ?? "";
+    var answer = Model?.Answer ?? "";
+    var attachmentRequired = Model?.AttachmentRequired ?? false;
+}
+
+<h2>Добавить задание</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-danger">@ViewBag.Message</div>
+}
+
+<form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm" style="max-width:700px;">
+    <div class="mb-3">
+        <label for="Year" class="form-label">Год</label>
+        <input type="number" id="Year" name="Year" class="form-control" value="@year" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="EgeNumber" class="form-label">Номер ЕГЭ</label>
+        <input type="number" id="EgeNumber" name="EgeNumber" class="form-control" value="@egeNumber" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="Text" class="form-label">Текст задания</label>
+        <textarea id="Text" name="Text" class="form-control" rows="4" required>@text</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="Answer" class="form-label">Ответ</label>
+        <input type="text" id="Answer" name="Answer" class="form-control" value="@answer" required />
+    </div>
+
+    <div class="mb-3 form-check">
+        <input type="checkbox" id="AttachmentRequired" name="AttachmentRequired" class="form-check-input" @(attachmentRequired ? "checked" : "") />
+        <label for="AttachmentRequired" class="form-check-label">Требуется вложение</label>
+    </div>
+
+    <div class="mb-3">
+        <label for="ExerciseFile" class="form-label">Файл с заданием (опционально)</label>
+        <input type="file" id="ExerciseFile" name="ExerciseFile" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="SolutionFile" class="form-label">Файл с решением (опционально)</label>
+        <input type="file" id="SolutionFile" name="SolutionFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Добавить задание</button>
+</form>

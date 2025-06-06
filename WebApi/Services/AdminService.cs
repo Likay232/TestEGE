@@ -187,7 +187,6 @@ public class AdminService(DataComponent component)
             .ToListAsync();
     }
 
-
     public async Task<bool> EditVariant(VariantDto updatedVariant)
     {
         var variantEntry = await component.Variants
