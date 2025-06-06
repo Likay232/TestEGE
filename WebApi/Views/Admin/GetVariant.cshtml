@@ -50,10 +50,7 @@
     }
 
     <div class="d-flex gap-2">
-        <a class="btn btn-secondary"
-           href="@Url.Action("Variants", "Admin")">
-            Назад
-        </a>
+        <a href="javascript:history.back()" class="btn btn-secondary mt-3">Назад</a>
 
         <a class="btn btn-primary"
            href="@Url.Action("EditVariant", "Admin", new { variantId = Model.Id })">

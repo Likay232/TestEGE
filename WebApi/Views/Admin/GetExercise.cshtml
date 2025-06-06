@@ -43,9 +43,16 @@
                 @(Model.AttachmentRequired ? "Да" : "Нет")
             </p>
 
-            <a href="@Url.Action("Exercises", "Admin")" class="btn btn-secondary mt-3">Назад к списку</a>
-            <a href="@Url.Action("EditExercise", "Admin", new {id = @Model.Id})" class="btn btn-secondary mt-3">Редактировать задание</a>
-            <a href="@Url.Action("DeleteExercise", "Admin")" class="btn btn-secondary mt-3">Удалить задание</a>
+            <a href="javascript:history.back()" class="btn btn-secondary mt-3">Назад</a>
+            <a class="btn btn-primary"
+               href="@Url.Action("EditExercise", "Admin", new { id = Model.Id })">
+                Редактировать задание
+            </a>            
+            <a class="btn btn-danger"
+               href="@Url.Action("DeleteExercise", "Admin", new { exerciseId = Model.Id })"
+               onclick="return confirm('Вы уверены, что хотите удалить этот вариант?');">
+                Удалить задание
+            </a>
         </div>
     </div>
 </div>

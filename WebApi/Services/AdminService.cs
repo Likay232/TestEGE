@@ -393,4 +393,63 @@ public class AdminService(DataComponent component)
 
         return await component.Delete<Exercise>(exerciseEntry.Id);
     }
+
+    public async Task<bool> DeleteVariant(int variantId)
+    {
+        var variantExercises = await component.VariantExercises
+            .Where(v => v.VariantId == variantId)
+            .Select(v => new
+            {
+                v.Id
+            })
+            .ToListAsync();
+
+        foreach (var exercise in variantExercises)
+        {
+            await component.Delete<VariantExercise>(exercise.Id);
+        }
+        
+        var variantAssignments = await component.VariantAssignments
+            .Where(v => v.VariantId == variantId)
+            .Select(v => new
+            {
+                v.Id
+            })
+            .ToListAsync();
+
+        foreach (var assignment in variantAssignments)
+        {
+            await component.Delete<VariantAssignment>(assignment.Id);
+        }
+
+        
+        return await component.Delete<Variant>(variantId);
+    }
+
+    public async Task<bool> DeleteExercise(int exerciseId)
+    {
+        var variantExercises = await component.VariantExercises
+            .Where(v => v.ExerciseId == exerciseId)
+            .ToListAsync();
+
+        foreach (var exercise in variantExercises)
+        {
+            await component.Delete<VariantExercise>(exercise.Id);
+        }
+        
+        var studentExercises = await component.StudentExercises
+            .Where(se => se.ExerciseId == exerciseId)
+            .Select(se => new
+            {
+                se.Id
+            })
+            .ToListAsync();
+
+        foreach (var exercise in studentExercises)
+        {
+            await component.Delete<StudentExercise>(exercise.Id);
+        }
+        
+        return await component.Delete<Exercise>(exerciseId);
+    }
 }

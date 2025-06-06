@@ -121,4 +121,27 @@ public class AdminController(AdminService service) : Controller
         
         return View(await service.GetVariant(variantId));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> DeleteVariant(int variantId)
+    {
+        if (await service.DeleteVariant(variantId))
+            return RedirectToAction("Index");
+        
+        ViewBag.Message = "Ошибка при удалении варианта.";
+        
+        return RedirectToAction("Variants");
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> DeleteExercise(int exerciseId)
+    {
+        if (await service.DeleteExercise(exerciseId))
+            return RedirectToAction("Index");
+        
+        ViewBag.Message = "Ошибка при удалении задания.";
+        
+        return RedirectToAction("Exercises");
+    }
+
 }
