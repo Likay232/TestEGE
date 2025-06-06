@@ -96,4 +96,59 @@ public class TeacherController(TeacherService service) : Controller
         
         return View(await service.GetVariants(userId));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetVariant(int variantId)
+    {
+        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        return View(await service.GetVariant(variantId, userId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditVariant(int variantId)
+    {
+        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        ViewBag.AllExercises = await service.GetExercises(userId);
+        ViewBag.AllStudents = await service.GetStudents();
+
+        return View(await service.GetVariant(variantId, userId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AddVariant()
+    {
+        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        ViewBag.AllExercises = await service.GetExercises(userId);
+        ViewBag.AllStudents = await service.GetStudents();
+        
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddVariant([FromForm] AddVariant newVariant)
+    {
+        if (newVariant.Exercises.Count == 0)
+        {
+            ViewBag.Message = "Не назначены задания для варианта.";
+        }
+
+        if (newVariant.AssignedUsers.Count == 0)
+        {
+            ViewBag.Message = "Не назначены студенты для варианта.";
+        }
+        
+        var teacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        newVariant.TeacherId = teacherId;
+        
+        if (await service.AddVariant(newVariant))
+            return RedirectToAction(nameof(MyExercises));
+        
+        ViewBag.Message = "Ошибка при добавлении варианта.";
+        
+        return View(newVariant);
+    }
 }

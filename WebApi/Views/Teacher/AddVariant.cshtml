@@ -1,0 +1,73 @@
+﻿@model WebApi.Infrastructure.Models.Requests.AddVariant
+
+@{
+    ViewBag.Title = "Добавить вариант";
+    Layout = "_TeacherLayout";
+
+    var teacherId = Model?.TeacherId ?? 0;
+    var title = Model?.Title ?? "";
+}
+
+<h2>Добавить вариант</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-danger">@ViewBag.Message</div>
+}
+
+<form method="post" class="bg-white p-4 rounded shadow-sm" style="max-width: 700px;">
+    <input type="hidden" name="TeacherId" value="@teacherId" />
+
+    <div class="mb-3">
+        <label for="Title" class="form-label">Название варианта</label>
+        <input id="Title" name="Title" type="text" class="form-control" required value="@title" />
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">Упражнения</label>
+        <div class="exercises-list">
+            @foreach (var exercise in ViewBag.AllExercises as List<WebApi.Infrastructure.Models.DTO.ExerciseDto> ?? new())
+            {
+                <div class="exercise-card mb-2 p-3 border rounded" onclick="toggleCheckbox(this)">
+                    <input type="checkbox" name="Exercises" value="@exercise.Id" onclick="event.stopPropagation()" />
+                    <h5>Задание №@exercise.EgeNumber</h5>
+                    <p>Год: @exercise.Year</p>
+                    <small>Преподаватель: @exercise.TeacherLastName @exercise.TeacherFirstName</small><br />
+                    <a class="btn btn-sm btn-outline-primary mt-2"
+                       href="@Url.Action("GetExercise", new { id = exercise.Id })" onclick="event.stopPropagation()">
+                        Подробнее
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">Студенты</label>
+        <div class="students-list">
+            @foreach (var student in ViewBag.AllStudents as List<WebApi.Infrastructure.Models.DTO.UserForAdminDto> ?? new())
+            {
+                <div class="student-item mb-2 p-3 border rounded" onclick="toggleCheckbox(this)">
+                    <input type="checkbox" name="AssignedUsers" value="@student.Id" onclick="event.stopPropagation()" />
+                    <div class="student-info">
+                        <div class="student-name">@student.LastName @student.FirstName</div>
+                        <div class="student-email text-muted">@student.Email</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Добавить</button>
+</form>
+
+@section Scripts {
+    <script>
+        function toggleCheckbox(card) {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+    </script>
+}

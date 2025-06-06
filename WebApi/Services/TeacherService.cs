@@ -30,7 +30,7 @@ public class TeacherService(DataComponent component)
         var userEntry = await component.Users
             .FirstOrDefaultAsync(u => u.Id == profileInfo.Id);
         if (userEntry == null) return false;
-        
+
         userEntry.FirstName = profileInfo.FirstName;
         userEntry.LastName = profileInfo.LastName;
         userEntry.Email = profileInfo.Email;
@@ -38,7 +38,7 @@ public class TeacherService(DataComponent component)
         userEntry.DateOfBirth = DateTime.SpecifyKind(profileInfo.DateOfBirth, DateTimeKind.Utc);
         userEntry.TimeZone = profileInfo.TimeZone;
         userEntry.About = profileInfo.About;
-        
+
         return await component.Update(userEntry);
     }
 
@@ -64,7 +64,7 @@ public class TeacherService(DataComponent component)
             })
             .ToListAsync();
     }
-    
+
     public async Task<EditExercise> GetExerciseToEdit(int exerciseId)
     {
         return await component.Exercises
@@ -86,7 +86,7 @@ public class TeacherService(DataComponent component)
             })
             .FirstAsync();
     }
-    
+
     //TODO: дописать обновление задания.
     public async Task<bool> EditExercise(EditExercise updatedExercise)
     {
@@ -112,10 +112,10 @@ public class TeacherService(DataComponent component)
             TeacherId = request.TeacherId,
             ModerationPassed = false,
         };
-        
+
         return await component.Insert(newEntry);
     }
-    
+
     public async Task<List<VariantDto>> GetVariants(int teacherId)
     {
         return await component.Variants
@@ -185,4 +185,54 @@ public class TeacherService(DataComponent component)
             .ToListAsync();
     }
 
+    public async Task<List<UserForAdminDto>> GetStudents()
+    {
+        return await component.Users
+            .Include(u => u.Role)
+            .Where(u => u.Role.RoleName == "Student")
+            .Select(u => new UserForAdminDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email
+            })
+            .ToListAsync();
+    }
+
+    public async Task<bool> AddVariant(AddVariant request)
+    {
+        var newVariant = new Variant
+        {
+            Title = request.Title,
+            TeacherId = request.TeacherId,
+        };
+        
+        await component.Insert(newVariant);
+        
+        foreach (var exercise in request.Exercises)
+        {
+            var newVariantExercise = new VariantExercise
+            {
+                VariantId = newVariant.Id,
+                ExerciseId = exercise,
+            };
+            
+            await component.Insert(newVariantExercise);
+        }
+
+        foreach (var user in request.AssignedUsers)
+        {
+            var newAssignment = new VariantAssignment
+            {
+                VariantId = newVariant.Id,
+                StudentId = user,
+                TeacherId = newVariant.TeacherId,
+            };
+            
+            await component.Insert(newAssignment);
+        }
+
+        return true;
+    }
 }
