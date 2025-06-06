@@ -54,6 +54,22 @@ public static class RunExtension
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
             };
+            
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Cookies["AuthToken"];
+
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        context.Token = accessToken;
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
+
         });
     }
 
@@ -62,6 +78,7 @@ public static class RunExtension
         app.MigrateDatabase();
         app.UseHttpsRedirection();
         app.UseRouting();
+        app.UseAuthorization();
 
         app.UseCors("AllowedOrigins");
 
@@ -81,6 +98,7 @@ public static class RunExtension
         builder.Services.AddScoped<AdminService>();
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<StudentService>();
+        builder.Services.AddScoped<TeacherService>();
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
     }

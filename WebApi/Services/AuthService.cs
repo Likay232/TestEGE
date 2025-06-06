@@ -74,7 +74,7 @@ public class AuthService(DataComponent component)
 
     public async Task<LoginResult?> Login(Login request)
     {
-        if (request.Email == "admin" && request.Password == "admin123")
+        if (request is { Email: "admin", Password: "admin123" })
             return await LoginAdmin(request);
 
         var user = await component.Users.Include(u => u.Role)

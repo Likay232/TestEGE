@@ -1,0 +1,56 @@
+﻿@model WebApi.Infrastructure.Models.DTO.ProfileInfo
+
+@{
+    ViewBag.Title = "Профиль преподавателя";
+    Layout = "_TeacherLayout";
+}
+
+<h2 class="mb-4">Редактирование профиля</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-danger">@ViewBag.Message</div>
+}
+
+<form method="post" class="bg-white p-4 rounded shadow-sm" style="max-width: 700px;">
+    <input type="hidden" name="Id" value="@Model.Id" />
+
+    <div class="mb-3">
+        <label for="Email" class="form-label">Email</label>
+        <input name="Email" id="Email" class="form-control" type="email" required value="@Model.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Password" class="form-label">Пароль</label>
+        <input name="Password" id="Password" class="form-control" type="password" required value="@Model.Password" />
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="LastName" class="form-label">Фамилия</label>
+            <input name="LastName" id="LastName" class="form-control" required value="@Model.LastName" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="FirstName" class="form-label">Имя</label>
+            <input name="FirstName" id="FirstName" class="form-control" required value="@Model.FirstName" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="DateOfBirth" class="form-label">Дата рождения</label>
+        <input name="DateOfBirth" id="DateOfBirth" class="form-control" type="date" required value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" />
+    </div>
+
+    <div class="mb-3">
+        <label for="TimeZone" class="form-label">Часовой пояс</label>
+        <input name="TimeZone" id="TimeZone" class="form-control" placeholder="Например, Europe/Moscow" value="@Model.TimeZone" />
+    </div>
+
+    <div class="mb-3">
+        <label for="About" class="form-label">О себе</label>
+        <textarea name="About" id="About" class="form-control" rows="4" placeholder="Расскажите немного о себе...">@Model.About</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+</form>
