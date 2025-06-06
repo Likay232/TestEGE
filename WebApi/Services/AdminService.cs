@@ -9,7 +9,7 @@ namespace WebApi.Services;
 
 public class AdminService(DataComponent component)
 {
-    public async Task<List<UserForAdminDto>> GetUsers()
+    public async Task<List<UserDto>> GetUsers()
     {
         var users = await component.Users
             .Include(x => x.Role)
@@ -21,7 +21,7 @@ public class AdminService(DataComponent component)
             .Select(u => u.UserId)
             .ToListAsync();
 
-        return users.Select(u => new UserForAdminDto
+        return users.Select(u => new UserDto
         {
             Id = u.Id,
             FirstName = u.FirstName,
@@ -172,12 +172,12 @@ public class AdminService(DataComponent component)
             .ToListAsync();
     }
 
-    private async Task<List<UserForAdminDto>> GetAssignedStudentsForVariant(int variantId)
+    private async Task<List<UserDto>> GetAssignedStudentsForVariant(int variantId)
     {
         return await component.VariantAssignments
             .Include(v => v.Student)
             .Where(v => v.VariantId == variantId)
-            .Select(va => new UserForAdminDto
+            .Select(va => new UserDto
             {
                 Id = va.StudentId,
                 Email = va.Student.Email,
@@ -252,12 +252,12 @@ public class AdminService(DataComponent component)
         return await component.Update(variantEntry);
     }
 
-    public async Task<List<UserForAdminDto>> GetStudents()
+    public async Task<List<UserDto>> GetStudents()
     {
         return await component.Users
             .Include(u => u.Role)
             .Where(u => u.Role.RoleName == "Student")
-            .Select(u => new UserForAdminDto
+            .Select(u => new UserDto
             {
                 Id = u.Id,
                 FirstName = u.FirstName,

@@ -247,12 +247,12 @@ public class TeacherService(DataComponent component)
             .ToListAsync();
     }
 
-    private async Task<List<UserForAdminDto>> GetAssignedStudentsForVariant(int variantId)
+    private async Task<List<UserDto>> GetAssignedStudentsForVariant(int variantId)
     {
         return await component.VariantAssignments
             .Include(v => v.Student)
             .Where(v => v.VariantId == variantId)
-            .Select(va => new UserForAdminDto
+            .Select(va => new UserDto
             {
                 Id = va.StudentId,
                 Email = va.Student.Email,
@@ -262,12 +262,12 @@ public class TeacherService(DataComponent component)
             .ToListAsync();
     }
 
-    public async Task<List<UserForAdminDto>> GetStudents()
+    public async Task<List<UserDto>> GetStudents()
     {
         return await component.Users
             .Include(u => u.Role)
             .Where(u => u.Role.RoleName == "Student")
-            .Select(u => new UserForAdminDto
+            .Select(u => new UserDto
             {
                 Id = u.Id,
                 FirstName = u.FirstName,
@@ -277,13 +277,13 @@ public class TeacherService(DataComponent component)
             .ToListAsync();
     }
     
-    public async Task<UserForAdminDto> GetStudent(int userId)
+    public async Task<UserDto> GetStudent(int userId)
     {
         if (!await component.Users.AnyAsync(u => u.Id == userId))
             throw new Exception("Пользователь с заданным Id не найден.");
         
         return await component.Users
-            .Select(u => new UserForAdminDto
+            .Select(u => new UserDto
             {
                 Id = u.Id,
                 FirstName = u.FirstName,
@@ -333,12 +333,12 @@ public class TeacherService(DataComponent component)
         return Group;
     }
 
-    private async Task<List<UserForAdminDto>> GetAssignedStudentsForGroup(int groupId)
+    private async Task<List<UserDto>> GetAssignedStudentsForGroup(int groupId)
     {
         return await component.GroupStudents
             .Include(g => g.Student)
             .Where(g => g.GroupId == groupId)
-            .Select(g => new UserForAdminDto
+            .Select(g => new UserDto
             {
                 Id = g.StudentId,
                 FirstName = g.Student.FirstName,

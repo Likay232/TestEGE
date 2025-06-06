@@ -10,5 +10,5 @@ public class VariantDto
     
     public List<ExerciseDto> Exercises { get; set; }
     
-    public List<UserForAdminDto> AssignedUsers { get; set; }
+    public List<UserDto> AssignedUsers { get; set; }
 }

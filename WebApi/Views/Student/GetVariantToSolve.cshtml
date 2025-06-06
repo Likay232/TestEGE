@@ -1,0 +1,103 @@
+﻿@model WebApi.Infrastructure.Models.DTO.VariantDto
+
+@{
+    ViewBag.Title = "Прохождение варианта";
+    Layout = "_StudentLayout";
+}
+
+<div class="container mt-4">
+    <h2>@Model.Title</h2>
+    <p class="text-muted">Преподаватель: @Model.TeacherLastName @Model.TeacherFirstName</p>
+
+    <form id="variantForm" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="VariantId" value="@Model.Id" />
+        <input type="hidden" name="StudentId" value="@ViewBag.StudentId" />
+
+        @for (int i = 0; i < Model.Exercises.Count; i++)
+        {
+            var ex = Model.Exercises[i];
+            
+            <div class="exercise-step" data-index="@i" style="display: @(i == 0 ? "block" : "none")">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <strong>Задание №@ex.EgeNumber</strong>
+                        <span class="text-muted">(Год: @ex.Year)</span>
+                        @if (ex.AttachmentRequired)
+                        {
+                            <span class="badge bg-warning text-dark ms-2">Решение обязательно</span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Формулировка:</label>
+                            <div class="border rounded p-2 bg-white">@ex.Text</div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ex.ExerciseFilePath))
+                        {
+                            <div class="mb-3">
+                                <a class="btn btn-outline-primary btn-sm"
+                                   href="@Url.Content($"~/uploads/{ex.ExerciseFilePath}")"
+                                   target="_blank">
+                                    📎 Скачать файл задания
+                                </a>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label class="form-label">Ваш ответ:</label>
+                            <textarea class="form-control"
+                          name="Answers[@i].Answer"
+                          rows="3"
+                          required></textarea>
+                            <input type="hidden" name="Answers[@i].ExerciseId" value="@ex.Id" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Файл с решением @if (ex.AttachmentRequired) { <span class="text-danger">*</span> }</label>
+                            <input type="file"
+                                   name="Answers[@i].Attachment"
+                                   class="form-control"
+                                   @(ex.AttachmentRequired ? "required" : "") />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" id="prevBtn">Назад</button>
+            <button type="submit" class="btn btn-danger">Завершить тест</button>
+            <button type="button" class="btn btn-primary" id="nextBtn">Вперёд</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.exercise-step');
+
+        function showStep(index) {
+            steps.forEach((step, i) => {
+                step.style.display = i === index ? 'block' : 'none';
+            });
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        showStep(currentStep);
+    </script>
+}

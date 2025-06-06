@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
+using WebApi.Infrastructure.Models.Storage;
 using WebApi.Services;
 
 namespace WebApi.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("[controller]/[action]")]
 public class StudentController(StudentService service) : Controller
 {
@@ -13,97 +17,88 @@ public class StudentController(StudentService service) : Controller
     {
         return View();
     }
-    /*
+    
     [HttpGet]
-    public async Task<ActionResult<List<ThemeDto>>> GetThemes()
+    public async Task<IActionResult> AllExercises()
     {
-        try
-        {
-            var themes = await service.GetThemes();
-            
-            return StatusCode(200, themes);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<List<TaskForClientDto>>> GetTasksForTheme(GetTasks request)
-    {
-        try
-        {
-            var tasks = await service.GetTasksForTheme(request);
-            
-            return StatusCode(200, tasks);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return View(await service.GetAllExercises());
     }
     
     [HttpGet]
-    public async Task<ActionResult<List<LessonDto>>> GetLessonsForTheme(int themeId)
+    public async Task<IActionResult> GetExercise(int id)
     {
-        try
-        {
-            var lessons = await service.GetLessonsForTheme(themeId);
-            
-            return StatusCode(200, lessons);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        return View(await service.GetExercise(id));
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> AllVariants()
+    {
+        return View(await service.GetAllVariants());
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TestDto>>> GetTests()
+    public async Task<IActionResult> MyVariants()
     {
-        try
-        {
-            var tests = await service.GetTests();
-            
-            return StatusCode(200, tests);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        return View(await service.GetAssignedVariants(userId));
     }
     
     [HttpGet]
-    public async Task<ActionResult<List<TaskForClientDto>>> GetTest(int testId)
+    public async Task<IActionResult> GetVariant(int variantId)
     {
-        try
-        {
-            var tasks = await service.GetTest(testId);
-            
-            return StatusCode(200, tasks);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return View(await service.GetVariant(variantId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetVariantToSolve(int variantId)
+    {
+        ViewBag.StudentId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        var variant = await service.GetVariant(variantId);
+        
+        return View(variant);
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> GetVariantToSolve([FromForm] VariantForCheck variant)
+    {
+        var checkedVariant = await service.CheckVariant(variant);
+
+        return View("CheckedVariant", checkedVariant);
     }
 
     [HttpPost]
-    public async Task<ActionResult<List<TaskForClientDto>>> CheckTest(TestForCheck request)
+    public async Task<IActionResult> CheckVariant([FromForm] VariantForCheck variant)
     {
-        try
-        {
-            var checkedTest = await service.CheckTest(request);
-            
-            return StatusCode(200, checkedTest);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var checkedVariant = await service.CheckVariant(variant);
+        
+        return View(checkedVariant);
     }
-    */
+    
+    [HttpGet]
+    public async Task<IActionResult> ProfileInfo()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        Console.WriteLine(userId);
+        
+        return View(await service.GetProfileInfo(Convert.ToInt32(userId)));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ProfileInfo([FromForm] ProfileInfo profileInfo)
+    {
+        if (await service.EditProfileInfo(profileInfo))
+            return RedirectToAction(nameof(Index));
+
+        ViewBag.Message = "Ошибка при редактировании профиля.";
+        
+        return View(profileInfo);
+    }
 
 
 }

@@ -1,6 +1,6 @@
 ﻿namespace WebApi.Infrastructure.Models.DTO;
 
-public class UserForAdminDto
+public class UserDto
 {
     public int Id { get; set; }
 

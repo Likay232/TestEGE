@@ -1,0 +1,71 @@
+﻿@model WebApi.Infrastructure.Models.DTO.CheckedVariant
+
+@{
+    ViewBag.Title = "Результаты проверки";
+    Layout = "_StudentLayout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Результаты проверки</h2>
+
+    <div class="alert alert-info fs-5">
+        Итоговый балл: <strong>@Model.Score</strong>
+    </div>
+
+    @if (Model.WrongExercises != null && Model.WrongExercises.Any())
+    {
+        <h4 class="mt-4 mb-3">Ошибки в заданиях:</h4>
+
+        @foreach (var ex in Model.WrongExercises)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <strong>Задание №@ex.EgeNumber</strong> <span class="text-muted">(Год: @ex.Year)</span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Формулировка:</label>
+                        <div class="border rounded p-2 bg-white">@Html.Raw(ex.Text)</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ex.ExerciseFilePath))
+                    {
+                        <div class="mb-2">
+                            <a class="btn btn-outline-primary btn-sm"
+                               href="@Url.Content($"~/uploads/{ex.ExerciseFilePath}")"
+                               target="_blank">
+                                📎 Скачать файл задания
+                            </a>
+                        </div>
+                    }
+
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Ваш ответ:</label>
+                        <div class="border p-2 bg-light">@ex.Answer</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ex.SolutionFilePath))
+                    {
+                        <div class="mb-2">
+                            <a class="btn btn-outline-success btn-sm"
+                               href="@Url.Content($"~/uploads/{ex.SolutionFilePath}")"
+                               target="_blank">
+                                ✅ Посмотреть решение преподавателя
+                            </a>
+                        </div>
+                    }
+
+                    <div class="text-muted mt-3">
+                        Проверил: @ex.TeacherLastName @ex.TeacherFirstName
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-success mt-4">
+            Поздравляем! Все задания выполнены правильно.
+        </div>
+    }
+</div>

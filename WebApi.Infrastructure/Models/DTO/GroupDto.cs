@@ -8,5 +8,5 @@ public class GroupDto
     public string TeacherFirstName { get; set; }
     public string TeacherLastName { get; set; }
     
-    public List<UserForAdminDto> Students { get; set; }
+    public List<UserDto> Students { get; set; }
 }

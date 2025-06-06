@@ -119,7 +119,7 @@
     
     <label>Студенты</label>
     <div class="students-list">
-        @foreach (var student in ViewBag.Students as List<UserForAdminDto> ?? new List<UserForAdminDto>())
+        @foreach (var student in ViewBag.Students as List<UserDto> ?? new List<UserDto>())
         {
             var isChecked = Model.Students.Any(s => s.Id == student.Id);
             <div class="student-item" onclick="toggleCheckbox(this)">

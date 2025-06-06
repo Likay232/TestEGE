@@ -10,4 +10,6 @@ public class StudentExercise : BaseEntity
     
     public string StudentAnswer { get; set; }
     public string StudentSolutionFilePath { get; set; }
+    
+    public bool IsCorrect { get; set; }
 }

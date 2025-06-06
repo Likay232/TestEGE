@@ -1,0 +1,55 @@
+﻿@model System.Collections.Generic.List<WebApi.Infrastructure.Models.DTO.VariantDto>
+
+@{
+    ViewBag.Title = "Все варианты";
+    Layout = "_StudentLayout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Список вариантов</h2>
+
+    <input type="text" id="searchBox" class="form-control mb-4" placeholder="Поиск по ID варианта">
+
+    @if (Model != null && Model.Any())
+    {
+        <div id="variantList" class="list-group">
+            @foreach (var variant in Model)
+            {
+                <div class="list-group-item" data-id="@variant.Id">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">@variant.Title</h5>
+                            <p class="mb-1 text-muted">Преподаватель: @variant.TeacherLastName @variant.TeacherFirstName</p>
+                            <div class="mt-2">
+                                <span class="badge bg-secondary">ID: @variant.Id</span>
+                            </div>
+                        </div>
+                        <a class="btn btn-outline-primary"
+                           href="@Url.Action("GetVariant", new { variantId = variant.Id })">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Нет доступных вариантов.</div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const items = document.querySelectorAll('#variantList .list-group-item');
+
+        searchBox.addEventListener('input', function () {
+            const query = this.value.trim();
+            items.forEach(item => {
+                const id = item.dataset.id.toString();
+                item.style.display = id.includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+}

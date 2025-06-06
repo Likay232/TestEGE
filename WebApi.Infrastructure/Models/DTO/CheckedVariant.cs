@@ -1,7 +1,7 @@
 ﻿namespace WebApi.Infrastructure.Models.DTO;
 
-public class CheckedTest
+public class CheckedVariant
 {
-    public List<UserAnswer> WrongAnswers { get; set; }
+    public List<WrongExercise> WrongExercises { get; set; }
     public string Score { get; set; }
 }

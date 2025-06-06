@@ -45,7 +45,7 @@
     <div class="mb-4">
         <label class="form-label">Студенты</label>
         <div class="students-list">
-            @foreach (var student in ViewBag.AllStudents as List<WebApi.Infrastructure.Models.DTO.UserForAdminDto> ?? new())
+            @foreach (var student in ViewBag.AllStudents as List<WebApi.Infrastructure.Models.DTO.UserDto> ?? new())
             {
                 <div class="student-item mb-2 p-3 border rounded" onclick="toggleCheckbox(this)">
                     <input type="checkbox" name="AssignedUsers" value="@student.Id" onclick="event.stopPropagation()" />
