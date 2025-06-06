@@ -1,0 +1,35 @@
+﻿@model List<WebApi.Infrastructure.Models.DTO.VariantDto>
+
+@{
+    ViewBag.Title = "Список вариантов";
+    Layout = "_AdminLayout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Список вариантов</h2>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="list-group">
+            @foreach (var variant in Model)
+            {
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">@variant.Title</h5>
+                            <small>Преподаватель: @variant.TeacherLastName @variant.TeacherFirstName</small>
+                        </div>
+                        <a class="btn btn-outline-primary"
+                           href="@Url.Action("GetVariant", new { variantId = variant.Id })">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Нет доступных вариантов.</div>
+    }
+</div>

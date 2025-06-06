@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
+using WebApi.Infrastructure.Models.Storage;
 using WebApi.Services;
 
 namespace WebApi.Controllers;
@@ -32,159 +33,92 @@ public class AdminController(AdminService service) : Controller
     {
         if (await service.EditUser(user))
             return RedirectToAction("Users");
-        
+
         ViewBag.Message = "Ошибка обновления пользователя.";
         return View(user);
     }
 
-    /*
     [HttpGet]
-    public async Task<ActionResult<List<UserDto>>> GetUsers()
+    public async Task<IActionResult> Exercises()
     {
-        try
-        {
-            var users = await service.GetUsers();
-
-            return StatusCode(200, users);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<bool>> ChangeUserPassword(ChangePassword request)
-    {
-        try
-        {
-            return StatusCode(200, await service.ChangeUserPassword(request));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return View(await service.GetExercises());
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ThemeDto>>> GetThemes()
+    public async Task<IActionResult> GetExercise(int id)
     {
-        try
-        {
-            var themes = await service.GetThemes();
+        return View(await service.GetExerciseToEdit(id));
+    }
 
-            return StatusCode(200, themes);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+    [HttpGet]
+    public async Task<IActionResult> EditExercise(int id)
+    {
+        ViewBag.Teachers = await service.GetTeachers();
+        
+        return View(await service.GetExerciseToEdit(id));
     }
 
     [HttpPost]
-    public async Task<ActionResult<bool>> CreateNewTheme(CreateTheme request)
+    public async Task<IActionResult> EditExercise(EditExercise updatedExercise)
     {
-        try
-        {
-            return StatusCode(200, await service.CreateNewTheme(request));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        if (await service.EditExercise(updatedExercise))
+            return View(await service.GetExerciseToEdit(updatedExercise.Id));
+        
+        return RedirectToAction("Exercises");
     }
 
-    [HttpPost]
-    public async Task<ActionResult<bool>> AddTaskForTheme(TaskDto taskToAdd)
+    [HttpGet]
+    public async Task<IActionResult> ExercisesToModerate()
     {
-        try
-        {
-            return StatusCode(200, await service.AddTaskForTheme(taskToAdd));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return View(await service.GetExercisesToModerate());
     }
 
-    [HttpPost]
-    public async Task<ActionResult<bool>> EditTaskForTheme(TaskDto updatedEntry)
+    [HttpGet]
+    public async Task<IActionResult> ModerateExercise(bool approved, int exerciseId)
     {
         try
         {
-            return StatusCode(200, await service.EditTaskForTheme(updatedEntry));
+            await service.ModerateExercise(new Moderation
+            {
+                Approved = approved,
+                ExerciseId = exerciseId
+            });
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return StatusCode(500, e.Message);
+            return RedirectToAction("Exercises");
         }
+
+        return RedirectToAction("Exercises");
     }
 
-    [HttpPost]
-    public async Task<ActionResult<bool>> DeleteTaskForTheme(int taskId)
+    [HttpGet]
+    public async Task<IActionResult> Variants()
     {
-        try
-        {
-            return StatusCode(200, await service.DeleteTaskForTheme(taskId));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return View(await service.GetVariants());
     }
 
-    [HttpPost]
-    public async Task<ActionResult<bool>> AddLessonForTheme(LessonDto lessonToAdd)
+    [HttpGet]
+    public async Task<IActionResult> GetVariant(int variantId)
     {
         try
         {
-            return StatusCode(200, await service.AddLessonForTheme(lessonToAdd));
+            var variant = await service.GetVariant(variantId);
+            return View(variant);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return StatusCode(500, e.Message);
+            return RedirectToAction("Variants");
         }
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TaskDto>>> GetTasks()
+    public async Task<IActionResult> EditVariant(int variantId)
     {
-        try
-        {
-            var tasks = await service.GetTasks();
-
-            return StatusCode(200, tasks);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        ViewBag.Teachers = await service.GetTeachers();
+        ViewBag.AllExercises = await service.GetExercises();
+        ViewBag.AllStudents = await service.GetStudents();
+        
+        return View(await service.GetVariant(variantId));
     }
-
-    [HttpPost]
-    public async Task<ActionResult<string>> CreateTest(CreateTest request)
-    {
-        try
-        {
-            return StatusCode(200, await service.CreateTest(request));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<bool>> SwitchBlockState(int userId)
-    {
-        try
-        {
-            return StatusCode(200, await service.SwitchBlockState(userId));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-    */
 }

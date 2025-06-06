@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Infrastructure.Components;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
@@ -83,7 +84,7 @@ public class AdminService(DataComponent component)
         userEntry.DateOfBirth = DateTime.SpecifyKind(user.DateOfBirth, DateTimeKind.Utc);
         userEntry.TimeZone = user.TimeZone;
         userEntry.RoleId = roleEntry.Id;
-        
+
         await UpdateBlockStatusAsync(user.Id, user.BlockedUntil);
 
         return await component.Update(userEntry);
@@ -118,132 +119,279 @@ public class AdminService(DataComponent component)
         }
     }
 
-/*
-public async Task<List<ThemeDto>> GetThemes()
-{
-    return await component.Themes.Select(t => new ThemeDto
+    public async Task<List<VariantDto>> GetVariants()
     {
-        Id = t.Id,
-        Description = t.Description,
-        Title = t.Title
-    }).ToListAsync();
-}
+        return await component.Variants
+            .Include(v => v.Teacher)
+            .Select(v => new VariantDto
+            {
+                Id = v.Id,
+                Title = v.Title,
+                TeacherFirstName = v.Teacher.FirstName,
+                TeacherLastName = v.Teacher.LastName,
+            })
+            .ToListAsync();
+    }
 
-public async Task<bool> CreateNewTheme(CreateTheme request)
-{
-    var newTheme = new Theme
+    public async Task<VariantDto> GetVariant(int id)
     {
-        Title = request.Title,
-        Description = request.Description,
-    };
+        if (!await component.Variants.AnyAsync(v => v.Id == id))
+            throw new Exception("Вариант с заданным Id не найден.");
 
-    return await component.Insert(newTheme);
-}
+        var exercises = await GetExercisesForVariant(id);
+        var assignedStudents = await GetAssignedStudentsForVariant(id);
 
-public async Task<bool> AddTaskForTheme(TaskDto taskToAdd)
-{
-    if (!component.Themes.Any(t => t.Id == taskToAdd.ThemeId))
-        throw new Exception("Тема с таким Id не найдена.");
+        return await component.Variants
+            .Where(v => v.Id == id)
+            .Select(v => new VariantDto
+            {
+                Id = v.Id,
+                Title = v.Title,
+                TeacherFirstName = v.Teacher.FirstName,
+                TeacherLastName = v.Teacher.LastName,
+                Exercises = exercises,
+                AssignedUsers = assignedStudents
+            })
+            .FirstAsync();
+    }
 
-    var newTask = new TaskForTest()
+    private async Task<List<ExerciseDto>> GetExercisesForVariant(int variantId)
     {
-        ThemeId = taskToAdd.ThemeId,
-        Text = taskToAdd.Text,
-        CorrectAnswer = taskToAdd.CorrectAnswer,
-        DifficultyLevel = taskToAdd.DifficultyLevel,
-        ImageData = taskToAdd.ImageData,
-        FileData = taskToAdd.FileData,
-    };
+        return await component.VariantExercises
+            .Include(v => v.Exercise)
+            .ThenInclude(e => e.Teacher)
+            .Where(v => v.VariantId == variantId)
+            .Select(v => new ExerciseDto
+            {
+                Id = v.ExerciseId,
+                EgeNumber = v.Exercise.EgeNumber,
+                Year = v.Exercise.Year,
+                TeacherFirstName = v.Exercise.Teacher.FirstName,
+                TeacherLastName = v.Exercise.Teacher.LastName,
+            })
+            .ToListAsync();
+    }
 
-    return await component.Insert(newTask);
-}
-
-public async Task<bool> EditTaskForTheme(TaskDto updatedTask)
-{
-    if (!component.Themes.Any(t => t.Id == updatedTask.ThemeId))
-        throw new Exception("Тема с таким Id не найдена.");
-
-    var taskToEdit = component.Tasks.FirstOrDefault(t => t.Id == updatedTask.Id);
-
-    if (taskToEdit == null)
-        throw new Exception("Задание с таким Id не найдено.");
-
-    taskToEdit.Text = updatedTask.Text;
-    taskToEdit.CorrectAnswer = updatedTask.CorrectAnswer;
-    taskToEdit.DifficultyLevel = updatedTask.DifficultyLevel;
-    taskToEdit.ImageData = updatedTask.ImageData;
-    taskToEdit.FileData = updatedTask.FileData;
-    taskToEdit.ThemeId = updatedTask.ThemeId;
-
-    return await component.Update(taskToEdit);
-}
-
-public async Task<bool> DeleteTaskForTheme(int taskId)
-{
-    return await component.Delete<TaskForTest>(taskId);
-}
-
-public async Task<bool> AddLessonForTheme(LessonDto lessonToAdd)
-{
-    if (!component.Themes.Any(t => t.Id == lessonToAdd.ThemeId))
-        throw new Exception("Тема с таким Id не найдена.");
-
-    var newLesson = new Lesson
+    private async Task<List<UserForAdminDto>> GetAssignedStudentsForVariant(int variantId)
     {
-        ThemeId = lessonToAdd.ThemeId,
-        Text = lessonToAdd.Text,
-        Link = lessonToAdd.Link
-    };
+        return await component.VariantAssignments
+            .Include(v => v.Student)
+            .Where(v => v.VariantId == variantId)
+            .Select(va => new UserForAdminDto
+            {
+                Id = va.StudentId,
+                Email = va.Student.Email,
+                FirstName = va.Student.FirstName,
+                LastName = va.Student.LastName,
+            })
+            .ToListAsync();
+    }
 
-    return await component.Insert(newLesson);
-}
 
-public async Task<List<TaskDto>> GetTasks()
-{
-    return await component.Tasks.Select(t => new TaskDto
+    public async Task<bool> EditVariant(VariantDto updatedVariant)
+    {
+        var variantEntry = await component.Variants
+            .Where(v => v.Id == updatedVariant.Id)
+            .FirstOrDefaultAsync();
+
+        if (variantEntry == null) throw new Exception("Вариант с заданным Id не найден.");
+
+        var currentVariantExercises = await GetExercisesForVariant(updatedVariant.Id);
+        var currentAssignedStudents = await GetAssignedStudentsForVariant(updatedVariant.Id);
+
+        foreach (var exercise in currentVariantExercises)
         {
-            Id = t.Id,
-            Text = t.Text,
-            CorrectAnswer = t.CorrectAnswer,
-            DifficultyLevel = t.DifficultyLevel,
-            ImageData = t.ImageData,
-            FileData = t.FileData,
-        })
-        .ToListAsync();
-}
-
-public async Task<string> CreateTest(CreateTest request)
-{
-    var newTest = new Variant
-    {
-        Title = request.Title,
-    };
-
-    if (!await component.Insert(newTest))
-        throw new Exception("Ошибка создания теста.");
-
-    List<int> failedTaskIds = new List<int>();
-
-    foreach (var taskId in request.taskIds)
-    {
-        var result = await component.Insert(new TestTask
-        {
-            TestId = newTest.Id,
-            TaskForTestId = taskId
-        });
-
-        if (!result)
-        {
-            failedTaskIds.Add(taskId);
+            if (!updatedVariant.Exercises.Exists(e => e.Id == exercise.Id))
+            {
+                await component.Delete<VariantExercise>(exercise.Id);
+            }
         }
+
+        foreach (var exercise in updatedVariant.Exercises)
+        {
+            if (currentVariantExercises.All(e => e.Id != exercise.Id))
+            {
+                await component.Insert(new VariantExercise
+                {
+                    VariantId = variantEntry.Id,
+                    ExerciseId = exercise.Id
+                });
+            }
+        }
+
+        foreach (var assignment in currentAssignedStudents)
+        {
+            if (updatedVariant.AssignedUsers.All(s => s.Id != assignment.Id))
+            {
+                var variantAssignmentEntry = await component.VariantAssignments
+                    .Include(v => v.Variant)
+                    .Include(v => v.Student)
+                    .Where(v => v.VariantId == variantEntry.Id && v.StudentId == assignment.Id)
+                    .FirstOrDefaultAsync();
+
+                if (variantAssignmentEntry == null) continue;
+
+                await component.Delete<VariantAssignment>(variantAssignmentEntry.Id);
+            }
+        }
+        
+        foreach (var student in updatedVariant.AssignedUsers)
+        {
+            if (currentAssignedStudents.All(a => a.Id != student.Id))
+            {
+                await component.Insert(new VariantAssignment
+                {
+                    VariantId = updatedVariant.Id,
+                    StudentId = student.Id
+                });
+            }
+        }
+
+        variantEntry.Title = updatedVariant.Title;
+        variantEntry.TeacherId = updatedVariant.TeacherId;
+        
+        return await component.Update(variantEntry);
     }
 
-    if (failedTaskIds.Count > 0)
+    public async Task<List<UserForAdminDto>> GetStudents()
     {
-        return $"Не удалось добавить задачи с ID: {string.Join(", ", failedTaskIds)}";
+        return await component.Users
+            .Include(u => u.Role)
+            .Where(u => u.Role.RoleName == "Student")
+            .Select(u => new UserForAdminDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email
+            })
+            .ToListAsync();
     }
 
-    return $"Тест успешно создан. ID: {newTest.Id}";
-}
-*/
+    public async Task<List<ExerciseDto>> GetExercises()
+    {
+        return await component.Exercises
+            .Include(ex => ex.Teacher)
+            .Where(ex => ex.ModerationPassed)
+            .Select(ex => new ExerciseDto
+            {
+                Id = ex.Id,
+                Text = ex.Text,
+                Answer = ex.Answer,
+                Year = ex.Year,
+                ExerciseFilePath = ex.ExerciseFilePath,
+                SolutionFilePath = ex.SolutionFilePath,
+                EgeNumber = ex.EgeNumber,
+                AttachmentRequired = ex.AttachmentRequired,
+                ModerationPassed = ex.ModerationPassed,
+                TeacherId = ex.TeacherId,
+                TeacherFirstName = ex.Teacher.FirstName,
+                TeacherLastName = ex.Teacher.LastName,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<EditExercise> GetExerciseToEdit(int exerciseId)
+    {
+        return await component.Exercises
+            .Include(ex => ex.Teacher)
+            .Where(ex => ex.Id == exerciseId)
+            .Select(ex => new EditExercise
+            {
+                Id = ex.Id,
+                Text = ex.Text,
+                Answer = ex.Answer,
+                Year = ex.Year,
+                ExerciseFilePath = ex.ExerciseFilePath,
+                SolutionFilePath = ex.SolutionFilePath,
+                EgeNumber = ex.EgeNumber,
+                AttachmentRequired = ex.AttachmentRequired,
+                TeacherId = ex.TeacherId,
+                TeacherFirstName = ex.Teacher.FirstName,
+                TeacherLastName = ex.Teacher.LastName,
+            })
+            .FirstAsync();
+    }
+
+    //TODO: дописать обновление задания.
+    public async Task<bool> EditExercise(EditExercise updatedExercise)
+    {
+        var exerciseEntry = await component.Exercises.FirstOrDefaultAsync(e => e.Id == updatedExercise.Id);
+
+        if (exerciseEntry == null)
+            throw new Exception("Задание с Id не найдено.");
+
+        return true;
+    }
+
+    public async Task<List<SelectListItem>> GetTeachers()
+    {
+        return await component.Users
+            .Include(u => u.Role)
+            .Where(u => u.Role.RoleName == "Teacher")
+            .Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.LastName + " " + u.FirstName
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<ExerciseDto>> GetExercisesToModerate()
+    {
+        return await component.Exercises
+            .Include(ex => ex.Teacher)
+            .Where(ex => !ex.ModerationPassed)
+            .Select(ex => new ExerciseDto
+            {
+                Id = ex.Id,
+                Text = ex.Text,
+                Answer = ex.Answer,
+                Year = ex.Year,
+                ExerciseFilePath = ex.ExerciseFilePath,
+                SolutionFilePath = ex.SolutionFilePath,
+                EgeNumber = ex.EgeNumber,
+                AttachmentRequired = ex.AttachmentRequired,
+                ModerationPassed = ex.ModerationPassed,
+                TeacherId = ex.TeacherId,
+                TeacherFirstName = ex.Teacher.FirstName,
+                TeacherLastName = ex.Teacher.LastName,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<bool> ModerateExercise(Moderation request)
+    {
+        var exerciseEntry = await component.Exercises
+            .FirstOrDefaultAsync(ex => ex.Id == request.ExerciseId);
+
+        if (exerciseEntry == null)
+            throw new Exception("Задание с заданным ID не найдено.");
+
+        if (request.Approved)
+        {
+            exerciseEntry.ModerationPassed = true;
+            return await component.Update(exerciseEntry);
+        }
+
+        var variantExercises = await component.VariantExercises
+            .Where(v => v.ExerciseId == exerciseEntry.Id)
+            .ToListAsync();
+
+        foreach (var exercise in variantExercises)
+        {
+            await component.Delete<VariantExercise>(exercise.Id);
+        }
+
+        var studentExercises = await component.StudentExercises
+            .Where(v => v.ExerciseId == exerciseEntry.Id)
+            .ToListAsync();
+
+        foreach (var exercise in studentExercises)
+        {
+            await component.Delete<StudentExercise>(exercise.Id);
+        }
+
+        return await component.Delete<Exercise>(exerciseEntry.Id);
+    }
 }

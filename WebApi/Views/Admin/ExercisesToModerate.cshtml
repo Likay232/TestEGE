@@ -1,0 +1,58 @@
+﻿@model List<WebApi.Infrastructure.Models.DTO.ExerciseDto>
+
+@{
+    ViewBag.Title = "Задания на модерацию";
+    Layout = "_AdminLayout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Задания на модерацию</h2>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var ex in Model)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <strong>Задание №@ex.EgeNumber (@ex.Year)</strong>
+                    <span class="float-end">Преподаватель: @ex.TeacherLastName @ex.TeacherFirstName</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Текст:</strong> @ex.Text</p>
+                    <p><strong>Ответ:</strong> @ex.Answer</p>
+
+                    @if (!string.IsNullOrEmpty(ex.ExerciseFilePath))
+                    {
+                        <p>
+                            <strong>Файл задания:</strong>
+                            <a href="@Url.Content(ex.ExerciseFilePath)" target="_blank">Скачать</a>
+                        </p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(ex.SolutionFilePath))
+                    {
+                        <p>
+                            <strong>Файл решения:</strong>
+                            <a href="@Url.Content(ex.SolutionFilePath)" target="_blank">Скачать</a>
+                        </p>
+                    }
+
+                    <div class="mt-3 d-flex gap-2">
+                        <a class="btn btn-success"
+                           href="@Url.Action("ModerateExercise", "Admin", new { approved = true, exerciseId = ex.Id })">
+                            Принять
+                        </a>
+                        <a class="btn btn-danger"
+                           href="@Url.Action("ModerateExercise", "Admin", new { approved = false, exerciseId = ex.Id })">
+                            Отклонить
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">Нет заданий, ожидающих модерации.</div>
+    }
+</div>

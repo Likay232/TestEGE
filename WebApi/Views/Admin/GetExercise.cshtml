@@ -1,0 +1,51 @@
+﻿@model WebApi.Infrastructure.Models.Requests.EditExercise
+
+@{
+    ViewBag.Title = $"Задание №{Model.EgeNumber}";
+    Layout = "_AdminLayout";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-light">
+            <h4 class="mb-0">Задание №@Model.EgeNumber (@Model.Year)</h4>
+        </div>
+
+        <div class="card-body">
+            <p><strong>Текст задания:</strong></p>
+            <div class="border p-2 mb-3 bg-light">@Model.Text</div>
+
+            <p><strong>Ответ:</strong> @Model.Answer</p>
+
+            @if (!string.IsNullOrEmpty(Model.ExerciseFilePath))
+            {
+                <p>
+                    <strong>Файл задания:</strong>
+                    <a href="@Url.Content(Model.ExerciseFilePath)" target="_blank">Скачать</a>
+                </p>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.SolutionFilePath))
+            {
+                <p>
+                    <strong>Файл решения:</strong>
+                    <a href="@Url.Content(Model.SolutionFilePath)" target="_blank">Скачать</a>
+                </p>
+            }
+
+            <p class="mt-3">
+                <strong>Преподаватель:</strong>
+                @Model.TeacherLastName @Model.TeacherFirstName
+            </p>
+
+            <p>
+                <strong>Требуется вложение:</strong>
+                @(Model.AttachmentRequired ? "Да" : "Нет")
+            </p>
+
+            <a href="@Url.Action("Exercises", "Admin")" class="btn btn-secondary mt-3">Назад к списку</a>
+            <a href="@Url.Action("EditExercise", "Admin", new {id = @Model.Id})" class="btn btn-secondary mt-3">Редактировать задание</a>
+            <a href="@Url.Action("DeleteExercise", "Admin")" class="btn btn-secondary mt-3">Удалить задание</a>
+        </div>
+    </div>
+</div>
