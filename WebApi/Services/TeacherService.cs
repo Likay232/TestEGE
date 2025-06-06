@@ -235,4 +235,127 @@ public class TeacherService(DataComponent component)
 
         return true;
     }
+
+    public async Task<List<GroupDto>> GetGroups(int teacherId)
+    {
+        return await component.Groups
+            .Include(g => g.Teacher)
+            .Where(g => g.TeacherId == teacherId)
+            .Select(g => new GroupDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                TeacherFirstName = g.Teacher.FirstName,
+                TeacherLastName = g.Teacher.LastName,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<GroupDto> GetGroup(int groupId)
+    {
+        var Group = await component.Groups
+            .Include(g => g.Teacher)
+            .Select(g => new GroupDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                TeacherFirstName = g.Teacher.FirstName,
+                TeacherLastName = g.Teacher.LastName,
+            })
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+        
+        if (Group == null) throw new Exception("Группа с данным Id не найдена.");
+
+        var students = await GetAssignedStudentsForGroup(groupId);
+        
+        Group.Students = students;
+        
+        return Group;
+    }
+
+    private async Task<List<UserForAdminDto>> GetAssignedStudentsForGroup(int groupId)
+    {
+        return await component.GroupStudents
+            .Include(g => g.Student)
+            .Where(g => g.GroupId == groupId)
+            .Select(g => new UserForAdminDto
+            {
+                Id = g.StudentId,
+                FirstName = g.Student.FirstName,
+                LastName = g.Student.LastName,
+                Email = g.Student.Email
+            })
+            .ToListAsync();
+    }
+
+    public async Task<bool> EditGroup(EditGroup group)
+    {
+        if (!await component.Groups.AnyAsync(g => g.Id == group.GroupId))
+            return false;
+
+        var groupEntry = await component.Groups
+            .FirstAsync(g => g.Id == group.GroupId);
+
+        groupEntry.Name = group.GroupName;
+        await component.Update(groupEntry);
+
+        var currentStudents = await component.GroupStudents
+            .Where(gs => gs.GroupId == group.GroupId)
+            .ToListAsync();
+
+        var newStudentIds = group.StudentIds ?? new List<int>();
+        
+        var toRemove = currentStudents
+            .Where(link => !newStudentIds.Contains(link.StudentId))
+            .ToList();
+
+        foreach (var link in toRemove)
+        {
+            await component.Delete<GroupStudent>(link.Id);
+        }
+
+        var existingIds = currentStudents.Select(x => x.StudentId).ToHashSet();
+        var toAdd = newStudentIds
+            .Where(id => !existingIds.Contains(id))
+            .ToList();
+
+        foreach (var id in toAdd)
+        {
+            var newEntry = new GroupStudent
+            {
+                GroupId = group.GroupId,
+                StudentId = id
+            };
+
+            await component.Insert(newEntry);
+        }
+
+        return true;
+    }
+
+    public async Task<bool> AddGroup(AddGroup request)
+    {
+        if (request.StudentIds == null)
+            return false;
+        
+        var group = new Group
+        {
+            Name = request.Name,
+            TeacherId = request.TeacherId
+        };
+
+        await component.Insert(group);
+
+        foreach (var id in request.StudentIds)
+        {
+            await component.Insert(new GroupStudent
+            {
+                GroupId = group.Id,
+                StudentId = id
+            });
+        }
+        
+        return true;
+    }
+    
 }

@@ -1,0 +1,41 @@
+﻿@model List<WebApi.Infrastructure.Models.DTO.GroupDto>
+
+@{
+    ViewBag.Title = "Список групп";
+    Layout = "_TeacherLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Список групп</h2>
+        <a href="@Url.Action("AddGroup")" class="btn btn-primary">Добавить группу</a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="list-group">
+            @foreach (var group in Model)
+            {
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Группа: @group.Name</h5>
+                            <p class="mb-1 text-muted">
+                                Преподаватель: @group.TeacherLastName @group.TeacherFirstName
+                            </p>
+                            <small>Количество студентов: @(group.Students?.Count ?? 0)</small>
+                        </div>
+                        <a class="btn btn-outline-primary"
+                           href="@Url.Action("GetGroup", new { groupId = group.Id })">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Нет доступных групп.</div>
+    }
+</div>

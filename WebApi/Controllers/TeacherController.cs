@@ -151,4 +151,64 @@ public class TeacherController(TeacherService service) : Controller
         
         return View(newVariant);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> MyGroups()
+    {
+        var teacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        return View(await service.GetGroups(teacherId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetGroup(int groupId)
+    {
+        return View(await service.GetGroup(groupId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditGroup(int groupId)
+    {
+        var group = await service.GetGroup(groupId);
+        var teacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        group.TeacherId = teacherId;
+        
+        ViewBag.Students = await service.GetStudents();
+        
+        return View(group);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditGroup([FromForm] EditGroup updatedGroup)
+    {
+        if (await service.EditGroup(updatedGroup))
+            return RedirectToAction(nameof(MyGroups));
+        
+        ViewBag.Message = "Ошибка редактирования группы.";
+        
+        return View(await service.GetGroup(updatedGroup.GroupId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AddGroup()
+    {
+        ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        ViewBag.Students = await service.GetStudents();
+        
+        return View(new AddGroup());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddGroup([FromForm] AddGroup newGroup)
+    {
+        if (await service.AddGroup(newGroup))
+            return RedirectToAction(nameof(MyGroups));
+        
+        ViewBag.Message = "Ошибка добавления группы.";
+        ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        ViewBag.Students = await service.GetStudents();
+
+        return View(newGroup);
+    }
 }
