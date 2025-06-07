@@ -1,0 +1,59 @@
+﻿@model WebApi.Infrastructure.Models.DTO.VariantDto
+
+@{
+    ViewBag.Title = "Вариант";
+    Layout = "_GuestLayout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Вариант: @Model.Title</h2>
+    <p class="text-muted">Преподаватель: @Model.TeacherLastName @Model.TeacherFirstName</p>
+
+    <hr/>
+
+    <h4>Список заданий</h4>
+    @if (Model.Exercises != null && Model.Exercises.Any())
+    {
+        <ul class="list-group mb-4">
+            @foreach (var exercise in Model.Exercises)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Задание №@exercise.EgeNumber</strong> (Год: @exercise.Year)<br/>
+                        <small
+                            class="text-muted">Преподаватель: @exercise.TeacherLastName @exercise.TeacherFirstName</small>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted">Задания не найдены.</p>
+    }
+
+    <h4>Назначенные ученики</h4>
+    @if (Model.AssignedUsers != null && Model.AssignedUsers.Any())
+    {
+        <ul class="list-group mb-4">
+            @foreach (var student in Model.AssignedUsers)
+            {
+                <li class="list-group-item">
+                    @student.LastName @student.FirstName
+                    <span class="text-muted">— @student.Email</span>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted mb-4">Ученики не назначены.</p>
+    }
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-secondary"
+           href="javascript:history.back()">
+            Назад
+        </a>
+    </div>
+</div>  

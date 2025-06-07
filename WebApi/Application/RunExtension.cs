@@ -100,6 +100,7 @@ public static class RunExtension
         builder.Services.AddScoped<StudentService>();
         builder.Services.AddScoped<TeacherService>();
         builder.Services.AddScoped<FileService>();
+        builder.Services.AddScoped<GuestService>();
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
     }

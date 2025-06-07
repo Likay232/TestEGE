@@ -27,8 +27,6 @@ public class StudentController(StudentService service) : Controller
     [HttpGet]
     public async Task<IActionResult> GetExercise(int id)
     {
-        ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
         return View(await service.GetExercise(id));
     }
 
