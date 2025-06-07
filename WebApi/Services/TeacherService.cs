@@ -63,7 +63,6 @@ public class TeacherService(DataComponent component, FileService fileService)
                 TeacherLastName = ex.Teacher.LastName,
             })
             .ToListAsync();
-
     }
 
     public async Task<List<ExerciseDto>> GetMyExercises(int userId)
@@ -129,14 +128,16 @@ public class TeacherService(DataComponent component, FileService fileService)
 
         if (updatedExercise.ExerciseFile != null)
         {
-            var newExerciseFileName = $"{exerciseEntry.Id}_exercise{Path.GetExtension(updatedExercise.ExerciseFile.FileName)}";
+            var newExerciseFileName =
+                $"{exerciseEntry.Id}_exercise{Path.GetExtension(updatedExercise.ExerciseFile.FileName)}";
             await fileService.SaveFileToRepo(updatedExercise.ExerciseFile, newExerciseFileName);
             exerciseEntry.ExerciseFilePath = newExerciseFileName;
         }
 
         if (updatedExercise.SolutionFile != null)
         {
-            var newSolutionFileName = $"{exerciseEntry.Id}_solution{Path.GetExtension(updatedExercise.SolutionFile.FileName)}";
+            var newSolutionFileName =
+                $"{exerciseEntry.Id}_solution{Path.GetExtension(updatedExercise.SolutionFile.FileName)}";
             await fileService.SaveFileToRepo(updatedExercise.SolutionFile, newSolutionFileName);
             exerciseEntry.SolutionFilePath = newSolutionFileName;
         }
@@ -238,7 +239,7 @@ public class TeacherService(DataComponent component, FileService fileService)
             })
             .FirstAsync();
     }
-    
+
     public async Task<bool> AddVariant(AddVariant request)
     {
         var newVariant = new Variant
@@ -246,9 +247,9 @@ public class TeacherService(DataComponent component, FileService fileService)
             Title = request.Title,
             TeacherId = request.TeacherId,
         };
-        
+
         await component.Insert(newVariant);
-        
+
         foreach (var exercise in request.Exercises)
         {
             var newVariantExercise = new VariantExercise
@@ -256,7 +257,7 @@ public class TeacherService(DataComponent component, FileService fileService)
                 VariantId = newVariant.Id,
                 ExerciseId = exercise,
             };
-            
+
             await component.Insert(newVariantExercise);
         }
 
@@ -268,14 +269,14 @@ public class TeacherService(DataComponent component, FileService fileService)
                 StudentId = user,
                 TeacherId = newVariant.TeacherId,
             };
-            
+
             await component.Insert(newAssignment);
         }
 
         return true;
     }
 
-        public async Task<bool> EditVariant(VariantDto updatedVariant)
+    public async Task<bool> EditVariant(VariantDto updatedVariant)
     {
         var variantEntry = await component.Variants
             .Where(v => v.Id == updatedVariant.Id)
@@ -386,12 +387,12 @@ public class TeacherService(DataComponent component, FileService fileService)
             })
             .ToListAsync();
     }
-    
+
     public async Task<UserDto> GetStudent(int userId)
     {
         if (!await component.Users.AnyAsync(u => u.Id == userId))
             throw new Exception("Пользователь с заданным Id не найден.");
-        
+
         return await component.Users
             .Select(u => new UserDto
             {
@@ -405,7 +406,7 @@ public class TeacherService(DataComponent component, FileService fileService)
             })
             .FirstAsync(u => u.Id == userId);
     }
-    
+
     public async Task<List<GroupDto>> GetGroups(int teacherId)
     {
         return await component.Groups
@@ -433,13 +434,13 @@ public class TeacherService(DataComponent component, FileService fileService)
                 TeacherLastName = g.Teacher.LastName,
             })
             .FirstOrDefaultAsync(g => g.Id == groupId);
-        
+
         if (group == null) throw new Exception("Группа с данным Id не найдена.");
 
         var students = await GetAssignedStudentsForGroup(groupId);
-        
+
         group.Students = students;
-        
+
         return group;
     }
 
@@ -474,7 +475,7 @@ public class TeacherService(DataComponent component, FileService fileService)
             .ToListAsync();
 
         var newStudentIds = group.StudentIds ?? new List<int>();
-        
+
         var toRemove = currentStudents
             .Where(link => !newStudentIds.Contains(link.StudentId))
             .ToList();
@@ -507,7 +508,7 @@ public class TeacherService(DataComponent component, FileService fileService)
     {
         if (request.StudentIds == null)
             return false;
-        
+
         var group = new Group
         {
             Name = request.Name,
@@ -524,10 +525,10 @@ public class TeacherService(DataComponent component, FileService fileService)
                 StudentId = id
             });
         }
-        
+
         return true;
     }
-    
+
     public async Task<bool> DeleteVariant(int variantId)
     {
         await DeleteByForeignKey(component.VariantExercises, variantId, "VariantId");
@@ -541,13 +542,13 @@ public class TeacherService(DataComponent component, FileService fileService)
         await DeleteByForeignKey(component.StudentExercises, exerciseId, "ExerciseId");
         return await component.Delete<Exercise>(exerciseId);
     }
-    
+
     public async Task<bool> DeleteGroup(int groupId)
     {
         await DeleteByForeignKey(component.GroupStudents, groupId, "GroupId");
         return await component.Delete<Group>(groupId);
     }
-    
+
     private async Task DeleteByForeignKey<T>(
         IQueryable<T> queryable,
         int foreignKeyValue,
@@ -568,9 +569,52 @@ public class TeacherService(DataComponent component, FileService fileService)
                 await component.Delete<T>(id);
         }
     }
-    
+
     public async Task<byte[]?> GetFileBytes(string fileName)
     {
         return await fileService.GetFileBytes(fileName);
+    }
+
+    public async Task<List<ExerciseSolutions>> GetStudentSolutions()
+    {
+        var exercises = await component.Exercises
+            .Select(e => new ExerciseSolutions
+            {
+                Id = e.Id,
+                Year = e.Year,
+                Text = e.Text,
+                Answer = e.Answer,
+                EgeNumber = e.EgeNumber,
+                StudentSolutions = new List<StudentSolution>()
+            }).ToListAsync();
+
+        var studentExercises = await component.StudentExercises
+            .Include(se => se.Student)
+            .Where(se => exercises.Select(e => e.Id).Contains(se.ExerciseId))
+            .Select(se => new
+            {
+                se.Id,
+                se.ExerciseId,
+                se.Student.FirstName,
+                se.Student.LastName,
+                se.StudentAnswer,
+                se.StudentSolutionFilePath
+            }).ToListAsync();
+
+        foreach (var exercise in exercises)
+        {
+            exercise.StudentSolutions = studentExercises
+                .Where(se => se.ExerciseId == exercise.Id)
+                .Select(se => new StudentSolution
+                {
+                    Id = se.Id,
+                    StudentFirstName = se.FirstName,
+                    StudentLastName = se.LastName,
+                    Answer = se.StudentAnswer,
+                    StudentSolutionPath = se.StudentSolutionFilePath
+                }).ToList();
+        }
+
+        return exercises;
     }
 }

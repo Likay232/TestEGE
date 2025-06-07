@@ -1,0 +1,74 @@
+﻿@model List<WebApi.Infrastructure.Models.DTO.ExerciseSolutions>
+
+@{
+    ViewBag.Title = "Решения студентов по заданиям";
+    Layout = "_TeacherLayout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">@ViewBag.Title</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Нет заданий с решениями студентов.</div>
+    }
+    else
+    {
+        @foreach (var exercise in Model)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <strong>Задание №@exercise.EgeNumber</strong>
+                    <span class="ms-3">Год: @exercise.Year</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Текст задания:</strong></p>
+                    <div class="border rounded p-3 bg-light mb-3">@exercise.Text</div>
+                    <p><strong>Правильный ответ:</strong> @exercise.Answer</p>
+
+                    <h5 class="mt-4">Решения студентов:</h5>
+
+                    @if (exercise.StudentSolutions == null || !exercise.StudentSolutions.Any())
+                    {
+                        <p class="text-muted">Пока нет решений студентов.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-striped table-hover">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Студент</th>
+                                    <th>Ответ студента</th>
+                                    <th>Файл решения</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sol in exercise.StudentSolutions)
+                                {
+                                    <tr>
+                                        <td>@sol.StudentLastName @sol.StudentFirstName</td>
+                                        <td>@sol.Answer</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(sol.StudentSolutionPath))
+                                            {
+                                                <a href="@Url.Action("DownloadFileFromRepo", new { filePath = sol.StudentSolutionPath })" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="Скачать решение">
+                                                    <i class="bi bi-download"></i> Скачать
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Нет файла</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>

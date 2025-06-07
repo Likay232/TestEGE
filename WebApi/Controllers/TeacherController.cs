@@ -301,4 +301,11 @@ public class TeacherController(TeacherService service) : Controller
             return StatusCode(500, e);
         }
     }
+
+    public async Task<IActionResult> GetStudentsSolutions()
+    {
+        var solutions = await service.GetStudentSolutions();
+        
+        return View(solutions);
+    }
 }
