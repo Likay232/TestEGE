@@ -128,7 +128,7 @@
         border-radius: 8px;
         padding: 12px 15px 12px 40px;
         position: relative;
-        flex: 0 1 250px; /* чуть шире для строки */
+        flex: 0 1 250px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
         cursor: pointer;
         transition: background-color 0.2s ease;
@@ -187,7 +187,7 @@
         {
             var isChecked = Model.Exercises.Any(e => e.Id == exercise.Id);
             <div class="exercise-card" onclick="toggleCheckbox(this)">
-                <input type="checkbox" name="SelectedExerciseIds" value="@exercise.Id" @(isChecked ? "checked" : "")
+                <input type="checkbox" name="ExerciseIds" value="@exercise.Id" @(isChecked ? "checked" : "")
                        onclick="event.stopPropagation()"/>
                 <h5>Задание №@exercise.EgeNumber</h5>
                 <p>Год: @exercise.Year</p>
@@ -206,7 +206,7 @@
         {
             var isChecked = Model.AssignedUsers.Any(s => s.Id == student.Id);
             <div class="student-item" onclick="toggleCheckbox(this)">
-                <input type="checkbox" name="SelectedStudentIds" value="@student.Id" @(isChecked ? "checked" : "") onclick="event.stopPropagation()" />
+                <input type="checkbox" name="StudentIds" value="@student.Id" @(isChecked ? "checked" : "") onclick="event.stopPropagation()" />
                 <div class="student-info">
                     <div class="student-name">@student.LastName @student.FirstName</div>
                     <div class="student-email">@student.Email</div>

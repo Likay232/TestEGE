@@ -275,6 +275,70 @@ public class TeacherService(DataComponent component, FileService fileService)
         return true;
     }
 
+        public async Task<bool> EditVariant(VariantDto updatedVariant)
+    {
+        var variantEntry = await component.Variants
+            .Where(v => v.Id == updatedVariant.Id)
+            .FirstOrDefaultAsync();
+
+        if (variantEntry == null) throw new Exception("Вариант с заданным Id не найден.");
+
+        var currentVariantExercises = await GetExercisesForVariant(updatedVariant.Id);
+        var currentAssignedStudents = await GetAssignedStudentsForVariant(updatedVariant.Id);
+
+        foreach (var exercise in currentVariantExercises)
+        {
+            if (!updatedVariant.Exercises.Exists(e => e.Id == exercise.Id))
+            {
+                await component.Delete<VariantExercise>(exercise.Id);
+            }
+        }
+
+        foreach (var exercise in updatedVariant.Exercises)
+        {
+            if (currentVariantExercises.All(e => e.Id != exercise.Id))
+            {
+                await component.Insert(new VariantExercise
+                {
+                    VariantId = variantEntry.Id,
+                    ExerciseId = exercise.Id
+                });
+            }
+        }
+
+        foreach (var assignment in currentAssignedStudents)
+        {
+            if (updatedVariant.AssignedUsers.All(s => s.Id != assignment.Id))
+            {
+                var variantAssignmentEntry = await component.VariantAssignments
+                    .Include(v => v.Variant)
+                    .Include(v => v.Student)
+                    .Where(v => v.VariantId == variantEntry.Id && v.StudentId == assignment.Id)
+                    .FirstOrDefaultAsync();
+
+                if (variantAssignmentEntry == null) continue;
+
+                await component.Delete<VariantAssignment>(variantAssignmentEntry.Id);
+            }
+        }
+
+        foreach (var student in updatedVariant.AssignedUsers)
+        {
+            if (currentAssignedStudents.All(a => a.Id != student.Id))
+            {
+                await component.Insert(new VariantAssignment
+                {
+                    VariantId = updatedVariant.Id,
+                    StudentId = student.Id
+                });
+            }
+        }
+
+        variantEntry.Title = updatedVariant.Title;
+
+        return await component.Update(variantEntry);
+    }
+
 
     private async Task<List<ExerciseDto>> GetExercisesForVariant(int variantId)
     {

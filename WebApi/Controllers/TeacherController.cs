@@ -65,9 +65,9 @@ public class TeacherController(TeacherService service) : Controller
     public async Task<IActionResult> EditExercise([FromForm] EditExercise updatedExercise)
     {
         if (await service.EditExercise(updatedExercise))
-            return View(await service.GetExerciseToEdit(updatedExercise.Id));
+            return RedirectToAction("MyExercises");
         
-        return RedirectToAction("MyExercises");
+        return View(updatedExercise);
     }
 
     [HttpGet]
@@ -116,6 +116,20 @@ public class TeacherController(TeacherService service) : Controller
         ViewBag.AllStudents = await service.GetStudents();
 
         return View(await service.GetVariant(variantId));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> EditVariant([FromForm] VariantDto updatedVariant)
+    {
+        if (await service.EditVariant(updatedVariant))
+            return RedirectToAction("MyVariants");
+        
+        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        ViewBag.AllExercises = await service.GetMyExercises(userId);
+        ViewBag.AllStudents = await service.GetStudents();
+        
+        return View(updatedVariant);
     }
 
     [HttpGet]

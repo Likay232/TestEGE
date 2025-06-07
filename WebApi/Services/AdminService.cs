@@ -325,7 +325,7 @@ public class AdminService(DataComponent component, FileService fileService)
         exerciseEntry.EgeNumber = updatedExercise.EgeNumber;
         exerciseEntry.AttachmentRequired = updatedExercise.AttachmentRequired;
         exerciseEntry.TeacherId = updatedExercise.TeacherId;
-        exerciseEntry.ModerationPassed = updatedExercise.ModerationPassed;
+        exerciseEntry.ModerationPassed = true;
 
         if (updatedExercise.ExerciseFile != null)
         {

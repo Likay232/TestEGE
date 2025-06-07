@@ -189,6 +189,7 @@ public class StudentService(DataComponent component, FileService fileService)
                 ExerciseId = userAnswer.ExerciseId,
                 UserId = variant.StudentId,
                 Answer = userAnswer.Answer,
+                Attachment = userAnswer.Attachment,
             });
 
             if (!isCorrect)
@@ -218,8 +219,8 @@ public class StudentService(DataComponent component, FileService fileService)
             Score = $"{variant.Answers.Count - wrongTasks.Count} / {variant.Answers.Count}"
         };
     }
-    
-    public async Task<bool> CheckExercise(CheckExercise answer)
+
+    private async Task<bool> CheckExercise(CheckExercise answer)
     {
         var task = await component.Exercises.FirstOrDefaultAsync(t => t.Id == answer.ExerciseId);
         
@@ -232,7 +233,20 @@ public class StudentService(DataComponent component, FileService fileService)
 
         if (existing != null)
         {
+            var answerChanged = existing.StudentAnswer != answer.Answer;
+
+            existing.StudentAnswer = answer.Answer;
             existing.IsCorrect = isCorrect;
+
+            if (answer.Attachment != null)
+            {
+                var newExerciseFileName = $"{existing.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
+                await fileService.SaveFileToRepo(answer.Attachment, newExerciseFileName);
+                existing.StudentSolutionFilePath = newExerciseFileName;
+            }
+            else if (answerChanged)
+                existing.StudentSolutionFilePath = "";
+
             await component.Update(existing);
         }
         else
@@ -253,9 +267,9 @@ public class StudentService(DataComponent component, FileService fileService)
                 var newExerciseFileName = $"{studentExerciseToAdd.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
                 await fileService.SaveFileToRepo(answer.Attachment, newExerciseFileName);
                 studentExerciseToAdd.StudentSolutionFilePath = newExerciseFileName;
+                
+                await component.Update(studentExerciseToAdd);
             }
-            
-            await component.Update(studentExerciseToAdd);
         }
         
         return isCorrect;

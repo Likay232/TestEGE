@@ -62,9 +62,11 @@ public class AdminController(AdminService service) : Controller
     public async Task<IActionResult> EditExercise(EditExercise updatedExercise)
     {
         if (await service.EditExercise(updatedExercise))
-            return View(await service.GetExerciseToEdit(updatedExercise.Id));
+            return RedirectToAction("Exercises");
 
-        return RedirectToAction("Exercises");
+        ViewBag.Teachers = await service.GetTeachers();
+        
+        return View(updatedExercise);
     }
 
     [HttpGet]
@@ -120,6 +122,19 @@ public class AdminController(AdminService service) : Controller
         ViewBag.AllStudents = await service.GetStudents();
 
         return View(await service.GetVariant(variantId));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditVariant([FromForm] VariantDto updatedVariant)
+    {
+        if (await service.EditVariant(updatedVariant))
+            return RedirectToAction("Variants");
+        
+        ViewBag.Teachers = await service.GetTeachers();
+        ViewBag.AllExercises = await service.GetExercises();
+        ViewBag.AllStudents = await service.GetStudents();
+        
+        return View(updatedVariant);
     }
 
     [HttpGet]
