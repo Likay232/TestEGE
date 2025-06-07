@@ -21,7 +21,7 @@
             {
                 <p>
                     <strong>Файл задания:</strong>
-                    <a href="@Url.Content(Model.ExerciseFilePath)" target="_blank">Скачать</a>
+                    <a href="@Url.Action("DownloadFileFromRepo", new { filePath = @Model.ExerciseFilePath })" class="btn btn-edit">Скачать файл</a>
                 </p>
             }
 
@@ -29,7 +29,7 @@
             {
                 <p>
                     <strong>Файл решения:</strong>
-                    <a href="@Url.Content(Model.SolutionFilePath)" target="_blank">Скачать</a>
+                    <a href="@Url.Action("DownloadFileFromRepo", new { filePath = @Model.SolutionFilePath })" class="btn btn-edit">Скачать файл</a>
                 </p>
             }
 

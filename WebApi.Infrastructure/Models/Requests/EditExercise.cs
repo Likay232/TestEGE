@@ -1,4 +1,6 @@
-﻿namespace WebApi.Infrastructure.Models.Requests;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace WebApi.Infrastructure.Models.Requests;
 
 public class EditExercise
 {
@@ -15,4 +17,7 @@ public class EditExercise
     public int TeacherId { get; set; }
     public string TeacherLastName { get; set; }
     public string TeacherFirstName { get; set; }
+    
+    public IFormFile? ExerciseFile { get; set; }
+    public IFormFile? SolutionFile { get; set; }
 }

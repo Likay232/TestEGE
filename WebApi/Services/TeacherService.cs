@@ -6,7 +6,7 @@ using WebApi.Infrastructure.Models.Storage;
 
 namespace WebApi.Services;
 
-public class TeacherService(DataComponent component)
+public class TeacherService(DataComponent component, FileService fileService)
 {
     public async Task<ProfileInfo> GetProfileInfo(int userId)
     {
@@ -112,15 +112,36 @@ public class TeacherService(DataComponent component)
             .FirstAsync();
     }
 
-    //TODO: дописать обновление задания.
     public async Task<bool> EditExercise(EditExercise updatedExercise)
     {
         var exerciseEntry = await component.Exercises.FirstOrDefaultAsync(e => e.Id == updatedExercise.Id);
 
         if (exerciseEntry == null)
-            throw new Exception("Задание с Id не найдено.");
+            throw new Exception("Задание с таким Id не найдено.");
 
-        return true;
+        exerciseEntry.Text = updatedExercise.Text;
+        exerciseEntry.Answer = updatedExercise.Answer;
+        exerciseEntry.Year = updatedExercise.Year;
+        exerciseEntry.EgeNumber = updatedExercise.EgeNumber;
+        exerciseEntry.AttachmentRequired = updatedExercise.AttachmentRequired;
+        exerciseEntry.TeacherId = updatedExercise.TeacherId;
+        exerciseEntry.ModerationPassed = updatedExercise.ModerationPassed;
+
+        if (updatedExercise.ExerciseFile != null)
+        {
+            var newExerciseFileName = $"{exerciseEntry.Id}_exercise{Path.GetExtension(updatedExercise.ExerciseFile.FileName)}";
+            await fileService.SaveFileToRepo(updatedExercise.ExerciseFile, newExerciseFileName);
+            exerciseEntry.ExerciseFilePath = newExerciseFileName;
+        }
+
+        if (updatedExercise.SolutionFile != null)
+        {
+            var newSolutionFileName = $"{exerciseEntry.Id}_solution{Path.GetExtension(updatedExercise.SolutionFile.FileName)}";
+            await fileService.SaveFileToRepo(updatedExercise.SolutionFile, newSolutionFileName);
+            exerciseEntry.SolutionFilePath = newSolutionFileName;
+        }
+
+        return await component.Update(exerciseEntry);
     }
 
     public async Task<bool> AddExercise(AddExercise request)
@@ -130,15 +151,40 @@ public class TeacherService(DataComponent component)
             Text = request.Text,
             Answer = request.Answer,
             Year = request.Year,
-            ExerciseFilePath = request.ExerciseFilePath ?? "",
-            SolutionFilePath = request.SolutionFilePath ?? "",
+            ExerciseFilePath = "",
+            SolutionFilePath = "",
             EgeNumber = request.EgeNumber,
             AttachmentRequired = request.AttachmentRequired,
             TeacherId = request.TeacherId,
             ModerationPassed = false,
         };
 
-        return await component.Insert(newEntry);
+        var inserted = await component.Insert(newEntry);
+        if (!inserted)
+            return false;
+
+        var updated = false;
+
+        if (request.ExerciseFile != null)
+        {
+            var exerciseFileName = $"{newEntry.Id}_exercise{Path.GetExtension(request.ExerciseFile.FileName)}";
+            await fileService.SaveFileToRepo(request.ExerciseFile, exerciseFileName);
+            newEntry.ExerciseFilePath = exerciseFileName;
+            updated = true;
+        }
+
+        if (request.SolutionFile != null)
+        {
+            var solutionFileName = $"{newEntry.Id}_solution{Path.GetExtension(request.SolutionFile.FileName)}";
+            await fileService.SaveFileToRepo(request.SolutionFile, solutionFileName);
+            newEntry.SolutionFilePath = solutionFileName;
+            updated = true;
+        }
+
+        if (updated)
+            await component.Update(newEntry);
+
+        return true;
     }
 
     public async Task<List<VariantDto>> GetMyVariants(int teacherId)
@@ -313,7 +359,7 @@ public class TeacherService(DataComponent component)
 
     public async Task<GroupDto> GetGroup(int groupId)
     {
-        var Group = await component.Groups
+        var group = await component.Groups
             .Include(g => g.Teacher)
             .Select(g => new GroupDto
             {
@@ -324,13 +370,13 @@ public class TeacherService(DataComponent component)
             })
             .FirstOrDefaultAsync(g => g.Id == groupId);
         
-        if (Group == null) throw new Exception("Группа с данным Id не найдена.");
+        if (group == null) throw new Exception("Группа с данным Id не найдена.");
 
         var students = await GetAssignedStudentsForGroup(groupId);
         
-        Group.Students = students;
+        group.Students = students;
         
-        return Group;
+        return group;
     }
 
     private async Task<List<UserDto>> GetAssignedStudentsForGroup(int groupId)
@@ -431,17 +477,6 @@ public class TeacherService(DataComponent component)
         await DeleteByForeignKey(component.StudentExercises, exerciseId, "ExerciseId");
         return await component.Delete<Exercise>(exerciseId);
     }
-
-    public async Task<bool> DeleteStudent(User student)
-    {
-        await DeleteByForeignKey(component.StudentExercises, student.Id, "StudentId");
-        await DeleteByForeignKey(component.GroupStudents, student.Id, "StudentId");
-        await DeleteByForeignKey(component.ResetPasses, student.Id, "UserId");
-        await DeleteByForeignKey(component.VariantAssignments, student.Id, "StudentId");
-        await DeleteByForeignKey(component.BlockUsers, student.Id, "UserId");
-
-        return await component.Delete<User>(student.Id);
-    }
     
     public async Task<bool> DeleteGroup(int groupId)
     {
@@ -468,5 +503,10 @@ public class TeacherService(DataComponent component)
             else
                 await component.Delete<T>(id);
         }
+    }
+    
+    public async Task<byte[]?> GetFileBytes(string fileName)
+    {
+        return await fileService.GetFileBytes(fileName);
     }
 }

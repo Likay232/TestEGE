@@ -17,18 +17,18 @@ public class StudentController(StudentService service) : Controller
     {
         return View();
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> AllExercises()
     {
         return View(await service.GetAllExercises());
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> GetExercise(int id)
     {
         ViewBag.TeacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-        
+
         return View(await service.GetExercise(id));
     }
 
@@ -46,7 +46,7 @@ public class StudentController(StudentService service) : Controller
 
         return View(await service.GetAssignedVariants(userId));
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> GetVariant(int variantId)
     {
@@ -59,10 +59,10 @@ public class StudentController(StudentService service) : Controller
         ViewBag.StudentId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
         var variant = await service.GetVariant(variantId);
-        
+
         return View(variant);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> GetVariantToSolve([FromForm] VariantForCheck variant)
     {
@@ -71,21 +71,13 @@ public class StudentController(StudentService service) : Controller
         return View("CheckedVariant", checkedVariant);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CheckVariant([FromForm] VariantForCheck variant)
-    {
-        var checkedVariant = await service.CheckVariant(variant);
-        
-        return View("CheckedVariant", checkedVariant);
-    }
-    
     [HttpGet]
     public async Task<IActionResult> ProfileInfo()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         Console.WriteLine(userId);
-        
+
         return View(await service.GetProfileInfo(Convert.ToInt32(userId)));
     }
 
@@ -96,9 +88,42 @@ public class StudentController(StudentService service) : Controller
             return RedirectToAction(nameof(Index));
 
         ViewBag.Message = "Ошибка при редактировании профиля.";
-        
+
         return View(profileInfo);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetExamToSolve(int variantId)
+    {
+        ViewBag.StudentId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
+        var variant = await service.GetVariant(variantId);
+
+        return View(variant);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetExamToSolve([FromForm] VariantForCheck variant)
+    {
+        var checkedVariant = await service.CheckVariant(variant);
+
+        return View("CheckedVariant", checkedVariant);
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> DownloadFileFromRepo(string filePath)
+    {
+        try
+        {
+            var fileBytes = await service.GetFileBytes(filePath);
+            
+            if (fileBytes == null) return NotFound();
+            
+            return File(fileBytes, "application/octet-stream", filePath);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e);
+        }
+    }
 }

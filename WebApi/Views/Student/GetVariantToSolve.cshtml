@@ -37,8 +37,7 @@
                         {
                             <div class="mb-3">
                                 <a class="btn btn-outline-primary btn-sm"
-                                   href="@Url.Content($"~/uploads/{ex.ExerciseFilePath}")"
-                                   target="_blank">
+                                   href="@Url.Action("DownloadFileFromRepo", new { filePath = @ex.ExerciseFilePath })">
                                     📎 Скачать файл задания
                                 </a>
                             </div>

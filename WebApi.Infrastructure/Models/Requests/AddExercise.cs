@@ -1,4 +1,6 @@
-﻿namespace WebApi.Infrastructure.Models.Requests;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace WebApi.Infrastructure.Models.Requests;
 
 public class AddExercise
 {
@@ -11,5 +13,9 @@ public class AddExercise
     
     public bool AttachmentRequired { get; set; }
     public int TeacherId { get; set; }
+    
+    public IFormFile? ExerciseFile { get; set; }
+    public IFormFile? SolutionFile { get; set; }
+
 
 }

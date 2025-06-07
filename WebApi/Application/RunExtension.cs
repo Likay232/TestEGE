@@ -95,10 +95,11 @@ public static class RunExtension
 
     public static void RegistrationEndpoints(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<AdminService>();
         builder.Services.AddScoped<AuthService>();
+        builder.Services.AddScoped<AdminService>();
         builder.Services.AddScoped<StudentService>();
         builder.Services.AddScoped<TeacherService>();
+        builder.Services.AddScoped<FileService>();
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
     }

@@ -6,7 +6,7 @@ using WebApi.Infrastructure.Models.Storage;
 
 namespace WebApi.Services;
 
-public class StudentService(DataComponent component)
+public class StudentService(DataComponent component, FileService fileService)
 {
     public async Task<ProfileInfo> GetProfileInfo(int userId)
     {
@@ -243,13 +243,26 @@ public class StudentService(DataComponent component)
                 StudentId = answer.UserId,
                 StudentAnswer = answer.Answer,
                 StudentSolutionFilePath = "",
-                //TODO: сохранение файлика
                 IsCorrect = isCorrect,
             };
             
             await component.Insert(studentExerciseToAdd);
+            
+            if (answer.Attachment != null)
+            {
+                var newExerciseFileName = $"{studentExerciseToAdd.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
+                await fileService.SaveFileToRepo(answer.Attachment, newExerciseFileName);
+                studentExerciseToAdd.StudentSolutionFilePath = newExerciseFileName;
+            }
+            
+            await component.Update(studentExerciseToAdd);
         }
         
         return isCorrect;
+    }
+    
+    public async Task<byte[]?> GetFileBytes(string fileName)
+    {
+        return await fileService.GetFileBytes(fileName);
     }
 }

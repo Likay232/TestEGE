@@ -7,7 +7,7 @@ using WebApi.Infrastructure.Models.Storage;
 
 namespace WebApi.Services;
 
-public class AdminService(DataComponent component)
+public class AdminService(DataComponent component, FileService fileService)
 {
     public async Task<List<UserDto>> GetUsers()
     {
@@ -312,15 +312,36 @@ public class AdminService(DataComponent component)
             .FirstAsync();
     }
 
-    //TODO: дописать обновление задания.
     public async Task<bool> EditExercise(EditExercise updatedExercise)
     {
         var exerciseEntry = await component.Exercises.FirstOrDefaultAsync(e => e.Id == updatedExercise.Id);
 
         if (exerciseEntry == null)
-            throw new Exception("Задание с Id не найдено.");
+            throw new Exception("Задание с таким Id не найдено.");
 
-        return true;
+        exerciseEntry.Text = updatedExercise.Text;
+        exerciseEntry.Answer = updatedExercise.Answer;
+        exerciseEntry.Year = updatedExercise.Year;
+        exerciseEntry.EgeNumber = updatedExercise.EgeNumber;
+        exerciseEntry.AttachmentRequired = updatedExercise.AttachmentRequired;
+        exerciseEntry.TeacherId = updatedExercise.TeacherId;
+        exerciseEntry.ModerationPassed = updatedExercise.ModerationPassed;
+
+        if (updatedExercise.ExerciseFile != null)
+        {
+            var newExerciseFileName = $"{exerciseEntry.Id}_exercise{Path.GetExtension(updatedExercise.ExerciseFile.FileName)}";
+            await fileService.SaveFileToRepo(updatedExercise.ExerciseFile, newExerciseFileName);
+            exerciseEntry.ExerciseFilePath = newExerciseFileName;
+        }
+
+        if (updatedExercise.SolutionFile != null)
+        {
+            var newSolutionFileName = $"{exerciseEntry.Id}_solution{Path.GetExtension(updatedExercise.SolutionFile.FileName)}";
+            await fileService.SaveFileToRepo(updatedExercise.SolutionFile, newSolutionFileName);
+            exerciseEntry.SolutionFilePath = newSolutionFileName;
+        }
+
+        return await component.Update(exerciseEntry);
     }
 
     public async Task<List<SelectListItem>> GetTeachers()
@@ -473,5 +494,10 @@ public class AdminService(DataComponent component)
             else
                 await component.Delete<T>(id);
         }
+    }
+
+    public async Task<byte[]?> GetFileBytes(string fileName)
+    {
+        return await fileService.GetFileBytes(fileName);
     }
 }

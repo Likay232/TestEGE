@@ -26,10 +26,16 @@
                                 <span class="badge bg-secondary">ID: @variant.Id</span>
                             </div>
                         </div>
-                        <a class="btn btn-outline-primary"
-                           href="@Url.Action("GetVariantToSolve", "Student", new { variantId = variant.Id })">
-                            Начать
-                        </a>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-outline-primary"
+                               href="@Url.Action("GetVariantToSolve", "Student", new { variantId = variant.Id })">
+                                Начать
+                            </a>
+                            <a class="btn btn-outline-success"
+                               href="@Url.Action("GetExamToSolve", "Student", new { variantId = variant.Id })">
+                                Экзамен
+                            </a>
+                        </div>
                     </div>
                 </div>
             }

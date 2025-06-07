@@ -154,4 +154,22 @@ public class AdminController(AdminService service) : Controller
 
         return RedirectToAction("Users");
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> DownloadFileFromRepo(string filePath)
+    {
+        try
+        {
+            var fileBytes = await service.GetFileBytes(filePath);
+            
+            if (fileBytes == null) return NotFound();
+            
+            return File(fileBytes, "application/octet-stream", filePath);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e);
+        }
+    }
+
 }
