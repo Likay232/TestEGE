@@ -418,4 +418,55 @@ public class TeacherService(DataComponent component)
         return true;
     }
     
+    public async Task<bool> DeleteVariant(int variantId)
+    {
+        await DeleteByForeignKey(component.VariantExercises, variantId, "VariantId");
+        await DeleteByForeignKey(component.VariantAssignments, variantId, "VariantId");
+        return await component.Delete<Variant>(variantId);
+    }
+
+    public async Task<bool> DeleteExercise(int exerciseId)
+    {
+        await DeleteByForeignKey(component.VariantExercises, exerciseId, "ExerciseId");
+        await DeleteByForeignKey(component.StudentExercises, exerciseId, "ExerciseId");
+        return await component.Delete<Exercise>(exerciseId);
+    }
+
+    public async Task<bool> DeleteStudent(User student)
+    {
+        await DeleteByForeignKey(component.StudentExercises, student.Id, "StudentId");
+        await DeleteByForeignKey(component.GroupStudents, student.Id, "StudentId");
+        await DeleteByForeignKey(component.ResetPasses, student.Id, "UserId");
+        await DeleteByForeignKey(component.VariantAssignments, student.Id, "StudentId");
+        await DeleteByForeignKey(component.BlockUsers, student.Id, "UserId");
+
+        return await component.Delete<User>(student.Id);
+    }
+    
+    public async Task<bool> DeleteGroup(int groupId)
+    {
+        await DeleteByForeignKey(component.GroupStudents, groupId, "GroupId");
+        return await component.Delete<Group>(groupId);
+    }
+    
+    private async Task DeleteByForeignKey<T>(
+        IQueryable<T> queryable,
+        int foreignKeyValue,
+        string foreignKeyName,
+        Func<int, Task>? deleteFunc = null
+    ) where T : class
+    {
+        var ids = await queryable
+            .Where(e => EF.Property<int>(e, foreignKeyName) == foreignKeyValue)
+            .Select(e => EF.Property<int>(e, "Id"))
+            .ToListAsync();
+
+        foreach (var id in ids)
+        {
+            if (deleteFunc != null)
+                await deleteFunc(id);
+            else
+                await component.Delete<T>(id);
+        }
+    }
 }

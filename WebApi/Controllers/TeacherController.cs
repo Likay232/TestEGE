@@ -237,4 +237,37 @@ public class TeacherController(TeacherService service) : Controller
     {
         return View(await service.GetAllVariants());
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> DeleteVariant(int variantId)
+    {
+        if (await service.DeleteVariant(variantId))
+            return RedirectToAction("MyVariants");
+
+        ViewBag.Message = "Ошибка при удалении варианта.";
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DeleteExercise(int exerciseId)
+    {
+        if (await service.DeleteExercise(exerciseId))
+            return RedirectToAction("MyExercises");
+
+        ViewBag.Message = "Ошибка при удалении задания.";
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DeleteGroup(int groupId)
+    {
+        if (await service.DeleteGroup(groupId))
+            return RedirectToAction("MyGroups");
+
+        ViewBag.Message = "Ошибка при удалении задания.";
+
+        return RedirectToAction("Index");
+    }
 }

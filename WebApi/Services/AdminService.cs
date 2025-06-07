@@ -233,7 +233,7 @@ public class AdminService(DataComponent component)
                 await component.Delete<VariantAssignment>(variantAssignmentEntry.Id);
             }
         }
-        
+
         foreach (var student in updatedVariant.AssignedUsers)
         {
             if (currentAssignedStudents.All(a => a.Id != student.Id))
@@ -248,7 +248,7 @@ public class AdminService(DataComponent component)
 
         variantEntry.Title = updatedVariant.Title;
         variantEntry.TeacherId = updatedVariant.TeacherId;
-        
+
         return await component.Update(variantEntry);
     }
 
@@ -396,60 +396,82 @@ public class AdminService(DataComponent component)
 
     public async Task<bool> DeleteVariant(int variantId)
     {
-        var variantExercises = await component.VariantExercises
-            .Where(v => v.VariantId == variantId)
-            .Select(v => new
-            {
-                v.Id
-            })
-            .ToListAsync();
-
-        foreach (var exercise in variantExercises)
-        {
-            await component.Delete<VariantExercise>(exercise.Id);
-        }
-        
-        var variantAssignments = await component.VariantAssignments
-            .Where(v => v.VariantId == variantId)
-            .Select(v => new
-            {
-                v.Id
-            })
-            .ToListAsync();
-
-        foreach (var assignment in variantAssignments)
-        {
-            await component.Delete<VariantAssignment>(assignment.Id);
-        }
-
-        
+        await DeleteByForeignKey(component.VariantExercises, variantId, "VariantId");
+        await DeleteByForeignKey(component.VariantAssignments, variantId, "VariantId");
         return await component.Delete<Variant>(variantId);
     }
 
     public async Task<bool> DeleteExercise(int exerciseId)
     {
-        var variantExercises = await component.VariantExercises
-            .Where(v => v.ExerciseId == exerciseId)
-            .ToListAsync();
-
-        foreach (var exercise in variantExercises)
-        {
-            await component.Delete<VariantExercise>(exercise.Id);
-        }
-        
-        var studentExercises = await component.StudentExercises
-            .Where(se => se.ExerciseId == exerciseId)
-            .Select(se => new
-            {
-                se.Id
-            })
-            .ToListAsync();
-
-        foreach (var exercise in studentExercises)
-        {
-            await component.Delete<StudentExercise>(exercise.Id);
-        }
-        
+        await DeleteByForeignKey(component.VariantExercises, exerciseId, "ExerciseId");
+        await DeleteByForeignKey(component.StudentExercises, exerciseId, "ExerciseId");
         return await component.Delete<Exercise>(exerciseId);
+    }
+
+    public async Task<bool> DeleteUser(int userId)
+    {
+        var userEntry = await component.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (userEntry == null) throw new Exception("Пользователь с данным Id не найден.");
+
+        if (userEntry.Role.RoleName == "Student")
+            return await DeleteStudent(userEntry);
+        if (userEntry.Role.RoleName == "Teacher")
+            return await DeleteTeacher(userEntry);
+
+        return false;
+    }
+
+    private async Task<bool> DeleteStudent(User student)
+    {
+        await DeleteByForeignKey(component.StudentExercises, student.Id, "StudentId");
+        await DeleteByForeignKey(component.GroupStudents, student.Id, "StudentId");
+        await DeleteByForeignKey(component.ResetPasses, student.Id, "UserId");
+        await DeleteByForeignKey(component.VariantAssignments, student.Id, "StudentId");
+        await DeleteByForeignKey(component.BlockUsers, student.Id, "UserId");
+
+        return await component.Delete<User>(student.Id);
+    }
+
+    private async Task<bool> DeleteTeacher(User teacher)
+    {
+        await DeleteByForeignKey(component.VariantAssignments, teacher.Id, "TeacherId");
+        await DeleteByForeignKey(component.ResetPasses, teacher.Id, "UserId");
+        await DeleteByForeignKey(component.BlockUsers, teacher.Id, "UserId");
+
+        await DeleteByForeignKey(component.Groups, teacher.Id, "TeacherId", DeleteGroup);
+        await DeleteByForeignKey(component.Exercises, teacher.Id, "TeacherId", DeleteExercise);
+        await DeleteByForeignKey(component.Variants, teacher.Id, "TeacherId", DeleteVariant);
+
+        return await component.Delete<User>(teacher.Id);
+    }
+    
+    private async Task<bool> DeleteGroup(int groupId)
+    {
+        await DeleteByForeignKey(component.GroupStudents, groupId, "GroupId");
+        return await component.Delete<Group>(groupId);
+    }
+
+    private async Task DeleteByForeignKey<T>(
+        IQueryable<T> queryable,
+        int foreignKeyValue,
+        string foreignKeyName,
+        Func<int, Task>? deleteFunc = null
+    ) where T : class
+    {
+        var ids = await queryable
+            .Where(e => EF.Property<int>(e, foreignKeyName) == foreignKeyValue)
+            .Select(e => EF.Property<int>(e, "Id"))
+            .ToListAsync();
+
+        foreach (var id in ids)
+        {
+            if (deleteFunc != null)
+                await deleteFunc(id);
+            else
+                await component.Delete<T>(id);
+        }
     }
 }

@@ -48,7 +48,7 @@
             @if (Model.ModerationPassed && Model.TeacherId == ViewBag.TeacherId)
             {
                 <a href="@Url.Action("EditExercise", "Teacher", new { id = @Model.Id })" class="btn btn-secondary mt-3">Редактировать задание</a>
-                <a href="@Url.Action("DeleteExercise", "Teacher")" class="btn btn-secondary mt-3">Удалить задание</a>
+                <a href="@Url.Action("DeleteExercise", "Teacher", new {exerciseId = @Model.Id})" class="btn btn-secondary mt-3">Удалить задание</a>
             }
         </div>
     </div>

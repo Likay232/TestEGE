@@ -76,7 +76,7 @@ public class StudentController(StudentService service) : Controller
     {
         var checkedVariant = await service.CheckVariant(variant);
         
-        return View(checkedVariant);
+        return View("CheckedVariant", checkedVariant);
     }
     
     [HttpGet]

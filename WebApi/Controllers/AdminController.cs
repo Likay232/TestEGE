@@ -54,7 +54,7 @@ public class AdminController(AdminService service) : Controller
     public async Task<IActionResult> EditExercise(int id)
     {
         ViewBag.Teachers = await service.GetTeachers();
-        
+
         return View(await service.GetExerciseToEdit(id));
     }
 
@@ -63,7 +63,7 @@ public class AdminController(AdminService service) : Controller
     {
         if (await service.EditExercise(updatedExercise))
             return View(await service.GetExerciseToEdit(updatedExercise.Id));
-        
+
         return RedirectToAction("Exercises");
     }
 
@@ -118,7 +118,7 @@ public class AdminController(AdminService service) : Controller
         ViewBag.Teachers = await service.GetTeachers();
         ViewBag.AllExercises = await service.GetExercises();
         ViewBag.AllStudents = await service.GetStudents();
-        
+
         return View(await service.GetVariant(variantId));
     }
 
@@ -127,21 +127,31 @@ public class AdminController(AdminService service) : Controller
     {
         if (await service.DeleteVariant(variantId))
             return RedirectToAction("Index");
-        
+
         ViewBag.Message = "Ошибка при удалении варианта.";
-        
+
         return RedirectToAction("Variants");
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> DeleteExercise(int exerciseId)
     {
         if (await service.DeleteExercise(exerciseId))
             return RedirectToAction("Index");
-        
+
         ViewBag.Message = "Ошибка при удалении задания.";
-        
+
         return RedirectToAction("Exercises");
     }
 
+    [HttpGet]
+    public async Task<IActionResult> DeleteUser(int userId)
+    {
+        if (await service.DeleteUser(userId))
+            return RedirectToAction("Index");
+
+        ViewBag.Message = "Ошибка при удалении задания.";
+
+        return RedirectToAction("Users");
+    }
 }
