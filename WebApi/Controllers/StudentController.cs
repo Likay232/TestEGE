@@ -124,4 +124,14 @@ public class StudentController(StudentService service) : Controller
             return StatusCode(500, e);
         }
     }
+
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        if (await service.DeleteAccount(userId))
+            return RedirectToAction("Login", "Auth");
+
+        return RedirectToAction("Index");
+    }
 }

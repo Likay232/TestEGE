@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
@@ -142,7 +143,11 @@ public class AuthService(DataComponent component)
         message.Body = $"Ссылка для восстановления пароля: http://localhost:5000/Auth/ResetPassword?token={token}";
         try
         {
-            using var client = new SmtpClient();
+            using var client = new SmtpClient("smtp.gmail.com");
+            client.Port = 587;
+            client.EnableSsl = true;
+            client.Credentials = new NetworkCredential("egetrainer32@gmail.com", "mhci grbz udea ezkt");
+            
             await client.SendMailAsync(message);
         }
         catch (Exception ex)

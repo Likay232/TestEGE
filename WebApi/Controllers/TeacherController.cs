@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
 using WebApi.Services;
@@ -119,7 +120,7 @@ public class TeacherController(TeacherService service) : Controller
     }
     
     [HttpPost]
-    public async Task<IActionResult> EditVariant([FromForm] VariantDto updatedVariant)
+    public async Task<IActionResult> EditVariant([FromForm] EditVariant updatedVariant)
     {
         if (await service.EditVariant(updatedVariant))
             return RedirectToAction("MyVariants");
@@ -129,7 +130,7 @@ public class TeacherController(TeacherService service) : Controller
         ViewBag.AllExercises = await service.GetMyExercises(userId);
         ViewBag.AllStudents = await service.GetStudents();
         
-        return View(updatedVariant);
+        return View(await service.GetVariant(updatedVariant.Id));
     }
 
     [HttpGet]
@@ -307,5 +308,15 @@ public class TeacherController(TeacherService service) : Controller
         var solutions = await service.GetStudentSolutions();
         
         return View(solutions);
+    }
+
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var teacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        
+        if (await service.DeleteAccount(teacherId))
+            return RedirectToAction("Login", "Auth");
+        
+        return RedirectToAction("Index");
     }
 }

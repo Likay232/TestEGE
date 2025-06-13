@@ -91,6 +91,12 @@ public static class RunExtension
         });
 
         app.UseEndpoints(endpoints => endpoints.MapControllers());
+        
+        app.MapGet("/", context =>
+        {
+            context.Response.Redirect("/Guest/Index");
+            return Task.CompletedTask;
+        });
     }
 
     public static void RegistrationEndpoints(this WebApplicationBuilder builder)

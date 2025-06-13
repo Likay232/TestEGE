@@ -188,7 +188,7 @@ public class StudentService(DataComponent component, FileService fileService)
             {
                 ExerciseId = userAnswer.ExerciseId,
                 UserId = variant.StudentId,
-                Answer = userAnswer.Answer,
+                Answer = userAnswer.Answer ?? "",
                 Attachment = userAnswer.Attachment,
             });
 
@@ -202,7 +202,7 @@ public class StudentService(DataComponent component, FileService fileService)
                 {
                     Text = task.Text,
                     Year = task.Year,
-                    Answer = userAnswer.Answer,
+                    Answer = userAnswer.Answer ?? "",
                     ExerciseFilePath = task.ExerciseFilePath,
                     SolutionFilePath = task.SolutionFilePath,
                     EgeNumber = task.EgeNumber,
@@ -279,4 +279,38 @@ public class StudentService(DataComponent component, FileService fileService)
     {
         return await fileService.GetFileBytes(fileName);
     }
+
+    public async Task<bool> DeleteAccount(int studentId)
+    {
+        await DeleteByForeignKey(component.StudentExercises, studentId, "StudentId");
+        await DeleteByForeignKey(component.GroupStudents, studentId, "StudentId");
+        await DeleteByForeignKey(component.ResetPasses, studentId, "UserId");
+        await DeleteByForeignKey(component.VariantAssignments, studentId, "StudentId");
+        await DeleteByForeignKey(component.BlockUsers, studentId, "UserId");
+
+        return await component.Delete<User>(studentId);
+    }
+    
+    private async Task DeleteByForeignKey<T>(
+        IQueryable<T> queryable,
+        int foreignKeyValue,
+        string foreignKeyName,
+        Func<int, Task>? deleteFunc = null
+    ) where T : class
+    {
+        var ids = await queryable
+            .Where(e => EF.Property<int>(e, foreignKeyName) == foreignKeyValue)
+            .Select(e => EF.Property<int>(e, "Id"))
+            .ToListAsync();
+
+        foreach (var id in ids)
+        {
+            if (deleteFunc != null)
+                await deleteFunc(id);
+            else
+                await component.Delete<T>(id);
+        }
+    }
+
+
 }

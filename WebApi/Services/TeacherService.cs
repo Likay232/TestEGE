@@ -276,7 +276,7 @@ public class TeacherService(DataComponent component, FileService fileService)
         return true;
     }
 
-    public async Task<bool> EditVariant(VariantDto updatedVariant)
+    public async Task<bool> EditVariant(EditVariant updatedVariant)
     {
         var variantEntry = await component.Variants
             .Where(v => v.Id == updatedVariant.Id)
@@ -289,27 +289,27 @@ public class TeacherService(DataComponent component, FileService fileService)
 
         foreach (var exercise in currentVariantExercises)
         {
-            if (!updatedVariant.Exercises.Exists(e => e.Id == exercise.Id))
+            if (!updatedVariant.ExerciseIds.Exists(id => id == exercise.Id))
             {
-                await component.Delete<VariantExercise>(exercise.Id);
+                await DeleteByForeignKey(component.VariantExercises, exercise.Id, "ExerciseId");
             }
         }
 
-        foreach (var exercise in updatedVariant.Exercises)
+        foreach (var exerciseId in updatedVariant.ExerciseIds)
         {
-            if (currentVariantExercises.All(e => e.Id != exercise.Id))
+            if (currentVariantExercises.All(e => e.Id != exerciseId))
             {
                 await component.Insert(new VariantExercise
                 {
                     VariantId = variantEntry.Id,
-                    ExerciseId = exercise.Id
+                    ExerciseId = exerciseId
                 });
             }
         }
 
         foreach (var assignment in currentAssignedStudents)
         {
-            if (updatedVariant.AssignedUsers.All(s => s.Id != assignment.Id))
+            if (updatedVariant.StudentIds.All(id => id != assignment.Id))
             {
                 var variantAssignmentEntry = await component.VariantAssignments
                     .Include(v => v.Variant)
@@ -323,14 +323,15 @@ public class TeacherService(DataComponent component, FileService fileService)
             }
         }
 
-        foreach (var student in updatedVariant.AssignedUsers)
+        foreach (var studentId in updatedVariant.StudentIds)
         {
-            if (currentAssignedStudents.All(a => a.Id != student.Id))
+            if (currentAssignedStudents.All(a => a.Id != studentId))
             {
                 await component.Insert(new VariantAssignment
                 {
                     VariantId = updatedVariant.Id,
-                    StudentId = student.Id
+                    TeacherId = updatedVariant.TeacherId,
+                    StudentId = studentId
                 });
             }
         }
@@ -616,5 +617,18 @@ public class TeacherService(DataComponent component, FileService fileService)
         }
 
         return exercises;
+    }
+
+    public async Task<bool> DeleteAccount(int teacherId)
+    {
+        await DeleteByForeignKey(component.VariantAssignments, teacherId, "TeacherId");
+        await DeleteByForeignKey(component.ResetPasses, teacherId, "UserId");
+        await DeleteByForeignKey(component.BlockUsers, teacherId, "UserId");
+
+        await DeleteByForeignKey(component.Groups, teacherId, "TeacherId", DeleteGroup);
+        await DeleteByForeignKey(component.Exercises, teacherId, "TeacherId", DeleteExercise);
+        await DeleteByForeignKey(component.Variants, teacherId, "TeacherId", DeleteVariant);
+
+        return await component.Delete<User>(teacherId);
     }
 }

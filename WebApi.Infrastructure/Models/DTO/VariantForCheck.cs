@@ -13,6 +13,6 @@ public class VariantForCheck
 public class UserAnswer
 {
     public int ExerciseId { get; set; }
-    public string Answer { get; set; }
+    public string? Answer { get; set; }
     public IFormFile? Attachment { get; set; }
 }
