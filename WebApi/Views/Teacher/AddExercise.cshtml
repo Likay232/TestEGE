@@ -9,6 +9,7 @@
     var text = Model?.Text ?? "";
     var answer = Model?.Answer ?? "";
     var attachmentRequired = Model?.AttachmentRequired ?? false;
+    var primaryScore = Model?.PrimaryScore ?? 0;
 }
 
 <h2>Добавить задание</h2>
@@ -38,6 +39,11 @@
         <label for="Answer" class="form-label">Ответ</label>
         <input type="text" id="Answer" name="Answer" class="form-control" value="@answer" required />
     </div>
+    
+    <div class="mb-3">
+        <label for="PrimaryScore" class="form-label">Количество первичных баллов за задание</label>
+        <input type="number" id="PrimaryScore" name="PrimaryScore" class="form-control" value="@primaryScore" required/>
+    </div>
 
     <div class="mb-3 form-check">
         <input type="checkbox" id="AttachmentRequired" name="AttachmentRequired" class="form-check-input" value="true" @(attachmentRequired ? "checked" : "") />
@@ -53,6 +59,5 @@
         <label for="SolutionFile" class="form-label">Файл с решением (опционально)</label>
         <input type="file" id="SolutionFile" name="SolutionFile" class="form-control" />
     </div>
-
     <button type="submit" class="btn btn-primary">Добавить задание</button>
 </form>

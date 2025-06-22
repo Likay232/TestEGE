@@ -9,7 +9,8 @@
     <h2 class="mb-3">Результаты проверки</h2>
 
     <div class="alert alert-info fs-5">
-        Итоговый балл: <strong>@Model.Score</strong>
+        Первичный балл: <strong>@Model.Score</strong>
+        Вторичный балл: <strong>@Model.SecondaryScore</strong>
     </div>
 
     @if (Model.WrongExercises != null && Model.WrongExercises.Any())

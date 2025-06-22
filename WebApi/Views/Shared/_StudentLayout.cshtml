@@ -1,6 +1,6 @@
 ﻿@{
     Layout = null;
-    var title = ViewData["Title"] ?? "Панель студента";
+    var title = ViewData["Title"] ?? "Панель учащегося";
 }
 
 <!DOCTYPE html>
@@ -87,7 +87,7 @@
 <body>
 <div class="layout">
     <aside class="sidebar">
-        <h2>Студент</h2>
+        <h2>Учащийся</h2>
         <a href="@Url.Action("Index", "Student")">Главная</a>
         <a href="@Url.Action("ProfileInfo", "Student")">Профиль</a>
         <a href="@Url.Action("AllVariants", "Student")">Все варианты</a>
@@ -98,7 +98,7 @@
     <div class="main">
         <header>
             <h1>@title</h1>
-            <div class="user-info">🎓 Вы вошли как студент</div>
+            <div class="user-info">🎓 Вы вошли как учащийся</div>
         </header>
 
         <main class="content">

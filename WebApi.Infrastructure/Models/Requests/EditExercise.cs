@@ -15,6 +15,7 @@ public class EditExercise
     
     public bool AttachmentRequired { get; set; }
     public bool ModerationPassed { get; set; }
+    public int PrimaryScore { get; set; }
     public int TeacherId { get; set; }
     
     [ValidateNever]

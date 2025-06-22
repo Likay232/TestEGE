@@ -98,6 +98,7 @@ public class TeacherService(DataComponent component, FileService fileService)
                 Id = ex.Id,
                 Text = ex.Text,
                 Answer = ex.Answer,
+                PrimaryScore = ex.PrimaryScore,
                 Year = ex.Year,
                 ExerciseFilePath = ex.ExerciseFilePath,
                 SolutionFilePath = ex.SolutionFilePath,
@@ -120,6 +121,7 @@ public class TeacherService(DataComponent component, FileService fileService)
 
         exerciseEntry.Text = updatedExercise.Text;
         exerciseEntry.Answer = updatedExercise.Answer;
+        exerciseEntry.PrimaryScore = updatedExercise.PrimaryScore;
         exerciseEntry.Year = updatedExercise.Year;
         exerciseEntry.EgeNumber = updatedExercise.EgeNumber;
         exerciseEntry.AttachmentRequired = updatedExercise.AttachmentRequired;
@@ -151,6 +153,7 @@ public class TeacherService(DataComponent component, FileService fileService)
         {
             Text = request.Text,
             Answer = request.Answer,
+            PrimaryScore = request.PrimaryScore,
             Year = request.Year,
             ExerciseFilePath = "",
             SolutionFilePath = "",

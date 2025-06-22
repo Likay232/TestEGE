@@ -16,6 +16,7 @@
             <div class="border p-2 mb-3 bg-light">@Model.Text</div>
 
             <p><strong>Ответ:</strong> @Model.Answer</p>
+            <p><strong>Количество баллов:</strong> @Model.PrimaryScore</p>
 
             @if (!string.IsNullOrEmpty(Model.ExerciseFilePath))
             {

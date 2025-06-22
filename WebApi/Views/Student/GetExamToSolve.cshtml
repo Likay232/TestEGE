@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <form id="variantForm"  method="post" enctype="multipart/form-data" style="display: none;">
+    <form id="variantForm" method="post" enctype="multipart/form-data" style="display: none;">
         <input type="hidden" name="VariantId" value="@Model.Id"/>
         <input type="hidden" name="StudentId" value="@ViewBag.StudentId"/>
 
@@ -72,7 +72,7 @@
                             <div class="mb-3">
                                 <a class="btn btn-outline-primary btn-sm"
                                    href="@Url.Action("DownloadFileFromRepo", new { filePath = @ex.ExerciseFilePath })"
-                                   >
+                                >
                                     📎 Скачать файл задания
                                 </a>
                             </div>
@@ -83,7 +83,7 @@
                             <textarea class="form-control"
                                       name="Answers[@i].Answer"
                                       rows="3"
-                                      required></textarea>
+                            ></textarea>
                             <input type="hidden" name="Answers[@i].ExerciseId" value="@ex.Id"/>
                         </div>
 

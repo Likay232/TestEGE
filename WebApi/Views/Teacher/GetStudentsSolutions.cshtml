@@ -1,7 +1,7 @@
 ﻿@model List<WebApi.Infrastructure.Models.DTO.ExerciseSolutions>
 
 @{
-    ViewBag.Title = "Решения студентов по заданиям";
+    ViewBag.Title = "Решения учащихся по заданиям";
     Layout = "_TeacherLayout";
 }
 
@@ -10,7 +10,7 @@
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">Нет заданий с решениями студентов.</div>
+        <div class="alert alert-info">Нет заданий с решениями.</div>
     }
     else
     {
@@ -26,19 +26,19 @@
                     <div class="border rounded p-3 bg-light mb-3">@exercise.Text</div>
                     <p><strong>Правильный ответ:</strong> @exercise.Answer</p>
 
-                    <h5 class="mt-4">Решения студентов:</h5>
+                    <h5 class="mt-4">Решения учащихся:</h5>
 
                     @if (exercise.StudentSolutions == null || !exercise.StudentSolutions.Any())
                     {
-                        <p class="text-muted">Пока нет решений студентов.</p>
+                        <p class="text-muted">Пока нет решений учащихся.</p>
                     }
                     else
                     {
                         <table class="table table-striped table-hover">
                             <thead class="table-secondary">
                                 <tr>
-                                    <th>Студент</th>
-                                    <th>Ответ студента</th>
+                                    <th>Учащийся</th>
+                                    <th>Ответ учащегося</th>
                                     <th>Файл решения</th>
                                 </tr>
                             </thead>

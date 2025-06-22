@@ -10,13 +10,13 @@
     <p class="text-muted">Преподаватель: @Model.TeacherLastName @Model.TeacherFirstName</p>
 
     <form id="variantForm" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="VariantId" value="@Model.Id" />
-        <input type="hidden" name="StudentId" value="@ViewBag.StudentId" />
+        <input type="hidden" name="VariantId" value="@Model.Id"/>
+        <input type="hidden" name="StudentId" value="@ViewBag.StudentId"/>
 
         @for (int i = 0; i < Model.Exercises.Count; i++)
         {
             var ex = Model.Exercises[i];
-            
+
             <div class="exercise-step" data-index="@i" style="display: @(i == 0 ? "block" : "none")">
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-light">
@@ -46,18 +46,22 @@
                         <div class="mb-3">
                             <label class="form-label">Ваш ответ:</label>
                             <textarea class="form-control"
-                          name="Answers[@i].Answer"
-                          rows="3"
-                          required></textarea>
-                            <input type="hidden" name="Answers[@i].ExerciseId" value="@ex.Id" />
+                                      name="Answers[@i].Answer"
+                                      rows="3"
+                            ></textarea>
+                            <input type="hidden" name="Answers[@i].ExerciseId" value="@ex.Id"/>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Файл с решением @if (ex.AttachmentRequired) { <span class="text-danger">*</span> }</label>
+                            <label class="form-label">Файл с решением
+                                @if (ex.AttachmentRequired)
+                                {
+                                    <span class="text-danger">*</span>
+                                }</label>
                             <input type="file"
                                    name="Answers[@i].Attachment"
                                    class="form-control"
-                                   @(ex.AttachmentRequired ? "required" : "") />
+                                   @(ex.AttachmentRequired ? "required" : "")/>
                         </div>
                     </div>
                 </div>

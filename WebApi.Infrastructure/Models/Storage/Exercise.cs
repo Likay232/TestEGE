@@ -9,6 +9,8 @@ public class Exercise : BaseEntity
     public string SolutionFilePath { get; set; }
     public int EgeNumber { get; set; }
     
+    public int PrimaryScore { get; set; }
+    
     public bool AttachmentRequired { get; set; }
     public bool ModerationPassed { get; set; }
     

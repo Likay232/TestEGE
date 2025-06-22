@@ -41,7 +41,7 @@ public class StudentService(DataComponent component, FileService fileService)
 
         return await component.Update(userEntry);
     }
-    
+
     public async Task<List<ExerciseDto>> GetAllExercises()
     {
         return await component.Exercises
@@ -63,9 +63,8 @@ public class StudentService(DataComponent component, FileService fileService)
                 TeacherLastName = ex.Teacher.LastName,
             })
             .ToListAsync();
-
     }
-    
+
     public async Task<ExerciseDto> GetExercise(int exerciseId)
     {
         return await component.Exercises
@@ -76,6 +75,7 @@ public class StudentService(DataComponent component, FileService fileService)
                 Id = ex.Id,
                 Text = ex.Text,
                 Answer = ex.Answer,
+                PrimaryScore = ex.PrimaryScore,
                 Year = ex.Year,
                 ExerciseFilePath = ex.ExerciseFilePath,
                 SolutionFilePath = ex.SolutionFilePath,
@@ -103,7 +103,7 @@ public class StudentService(DataComponent component, FileService fileService)
             })
             .ToListAsync();
     }
-    
+
     public async Task<VariantDto> GetVariant(int variantId)
     {
         if (!await component.Variants.AnyAsync(v => v.Id == variantId))
@@ -177,10 +177,11 @@ public class StudentService(DataComponent component, FileService fileService)
             })
             .ToListAsync();
     }
-    
+
     public async Task<CheckedVariant> CheckVariant(VariantForCheck variant)
     {
         var wrongTasks = new List<WrongExercise>();
+        int primaryScore = 0;
 
         foreach (var userAnswer in variant.Answers)
         {
@@ -192,12 +193,12 @@ public class StudentService(DataComponent component, FileService fileService)
                 Attachment = userAnswer.Attachment,
             });
 
+            var task = await component.Exercises
+                .Include(e => e.Teacher)
+                .FirstAsync(e => e.Id == userAnswer.ExerciseId);
+
             if (!isCorrect)
             {
-                var task = await component.Exercises
-                    .Include(e => e.Teacher)
-                    .FirstAsync(e => e.Id == userAnswer.ExerciseId);
-
                 wrongTasks.Add(new WrongExercise
                 {
                     Text = task.Text,
@@ -211,24 +212,65 @@ public class StudentService(DataComponent component, FileService fileService)
                     TeacherFirstName = task.Teacher.FirstName,
                 });
             }
+            else
+            {
+                primaryScore += task.PrimaryScore;
+            }
         }
 
         return new CheckedVariant
         {
             WrongExercises = wrongTasks,
-            Score = $"{variant.Answers.Count - wrongTasks.Count} / {variant.Answers.Count}"
+            Score = $"{primaryScore}",
+            SecondaryScore = $"{ConvertPrimaryScoreToSecondaryScore(primaryScore)}"
         };
     }
+
+    private int ConvertPrimaryScoreToSecondaryScore(int primaryScore) =>
+        primaryScore switch
+        {
+            0 => 0,
+            1 => 7,
+            2 => 14,
+            3 => 20,
+            4 => 27,
+            5 => 34,
+            6 => 40,
+            7 => 43,
+            8 => 46,
+            9 => 48,
+            10 => 51,
+            11 => 54,
+            12 => 56,
+            13 => 59,
+            14 => 62,
+            15 => 64,
+            16 => 67,
+            17 => 70,
+            18 => 72,
+            19 => 75,
+            20 => 78,
+            21 => 80,
+            22 => 83,
+            23 => 85,
+            24 => 88,
+            25 => 90,
+            26 => 93,
+            27 => 95,
+            28 => 98,
+            >= 29 => 100,
+            _ => 0
+        };
 
     private async Task<bool> CheckExercise(CheckExercise answer)
     {
         var task = await component.Exercises.FirstOrDefaultAsync(t => t.Id == answer.ExerciseId);
-        
+
         if (task == null) return false;
-        
+
         var existing = await component.StudentExercises
             .FirstOrDefaultAsync(ce => ce.StudentId == answer.UserId && ce.ExerciseId == answer.ExerciseId);
-        
+
         var isCorrect = task.Answer == answer.Answer;
 
         if (existing != null)
@@ -240,7 +282,8 @@ public class StudentService(DataComponent component, FileService fileService)
 
             if (answer.Attachment != null)
             {
-                var newExerciseFileName = $"{existing.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
+                var newExerciseFileName =
+                    $"{existing.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
                 await fileService.SaveFileToRepo(answer.Attachment, newExerciseFileName);
                 existing.StudentSolutionFilePath = newExerciseFileName;
             }
@@ -259,22 +302,23 @@ public class StudentService(DataComponent component, FileService fileService)
                 StudentSolutionFilePath = "",
                 IsCorrect = isCorrect,
             };
-            
+
             await component.Insert(studentExerciseToAdd);
-            
+
             if (answer.Attachment != null)
             {
-                var newExerciseFileName = $"{studentExerciseToAdd.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
+                var newExerciseFileName =
+                    $"{studentExerciseToAdd.Id}_studentSolution{Path.GetExtension(answer.Attachment.FileName)}";
                 await fileService.SaveFileToRepo(answer.Attachment, newExerciseFileName);
                 studentExerciseToAdd.StudentSolutionFilePath = newExerciseFileName;
-                
+
                 await component.Update(studentExerciseToAdd);
             }
         }
-        
+
         return isCorrect;
     }
-    
+
     public async Task<byte[]?> GetFileBytes(string fileName)
     {
         return await fileService.GetFileBytes(fileName);
@@ -290,7 +334,7 @@ public class StudentService(DataComponent component, FileService fileService)
 
         return await component.Delete<User>(studentId);
     }
-    
+
     private async Task DeleteByForeignKey<T>(
         IQueryable<T> queryable,
         int foreignKeyValue,
@@ -311,6 +355,4 @@ public class StudentService(DataComponent component, FileService fileService)
                 await component.Delete<T>(id);
         }
     }
-
-
 }
