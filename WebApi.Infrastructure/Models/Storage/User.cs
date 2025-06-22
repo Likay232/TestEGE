@@ -10,6 +10,8 @@ public class User : BaseEntity
     public DateTime DateOfBirth { get; set; }
     public string TimeZone { get; set; }
     
+    public DateTime? LastLogin { get; set; }
+    
     public int RoleId { get; set; }
     public Role Role { get; set; }
     public string About { get; set; }

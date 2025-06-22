@@ -13,6 +13,7 @@
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Статус</th>
+        <th>Последний раз на сайте</th>
         <th>Действия</th>
     </tr>
     </thead>
@@ -31,6 +32,9 @@
                 {
                     <span class="text-success">Активен</span>
                 }
+            </td>
+            <td>
+                @(user.LastLogin?.ToString("dd.MM.yyyy HH:mm") ?? "Не был в сети")
             </td>
             <td>
                 <a class="btn btn-sm btn-secondary ms-2"

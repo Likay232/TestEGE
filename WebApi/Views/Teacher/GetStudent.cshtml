@@ -17,6 +17,7 @@
         {
             <p class="card-text"><strong>О студенте:</strong> @Model.About</p>
         }
+        <p class="card-text"><strong>Последний раз на сайте:</strong> @(Model.LastLogin?.ToString("dd.MM.yyyy HH:mm") ?? "Не был в сети")</p>
     </div>
     <div class="card-footer text-end">
         <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>

@@ -21,4 +21,6 @@ public class UserDto
     public string About { get; set; }
 
     public bool IsBlocked { get; set; }
+    
+    public DateTime? LastLogin { get; set; }
 }

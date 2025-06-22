@@ -31,7 +31,8 @@ public class AdminService(DataComponent component, FileService fileService)
             DateOfBirth = u.DateOfBirth,
             TimeZone = u.TimeZone,
             RoleName = u.Role.RoleName,
-            IsBlocked = blockMap.Contains(u.Id)
+            IsBlocked = blockMap.Contains(u.Id),
+            LastLogin = u.LastLogin
         }).ToList();
     }
 

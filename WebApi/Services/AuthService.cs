@@ -110,6 +110,10 @@ public class AuthService(DataComponent component)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
+        
+        user.LastLogin = DateTime.UtcNow;
+        await component.Update(user);
+        
         return new LoginResult
         {
             Token = tokenHandler.WriteToken(token),
