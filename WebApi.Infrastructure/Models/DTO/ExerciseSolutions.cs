@@ -20,5 +20,5 @@ public class StudentSolution
 
     public string Answer { get; set; }
     
-    public string StudentSolutionPath { get; set; }
+    public string? StudentSolutionPath { get; set; }
 }

@@ -9,7 +9,7 @@ public class StudentExercise : BaseEntity
     public User Student { get; set; }
     
     public string StudentAnswer { get; set; }
-    public string StudentSolutionFilePath { get; set; }
+    public string? StudentSolutionFilePath { get; set; }
     
     public bool IsCorrect { get; set; }
 }

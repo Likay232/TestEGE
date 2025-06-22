@@ -8,8 +8,8 @@ public class ExerciseDto
     public string Answer { get; set; }
     
     public int PrimaryScore { get; set; }
-    public string ExerciseFilePath { get; set; }
-    public string SolutionFilePath { get; set; }
+    public string? ExerciseFilePath { get; set; }
+    public string? SolutionFilePath { get; set; }
     public int EgeNumber { get; set; }
     
     public bool AttachmentRequired { get; set; }

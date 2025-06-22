@@ -8,8 +8,8 @@ public class WrongExercise
     
     public string Answer { get; set; }
 
-    public string ExerciseFilePath { get; set; }
-    public string SolutionFilePath { get; set; }
+    public string? ExerciseFilePath { get; set; }
+    public string? SolutionFilePath { get; set; }
     
     public int EgeNumber { get; set; }
 
