@@ -3,63 +3,89 @@
 @{
     ViewBag.Title = "Профиль";
     Layout = "_StudentLayout";
+
+    // Список часовых поясов, взятый из твоего примера регистрации
+    var timeZones = new List<string>
+    {
+        "UTC-12:00", "UTC-11:00", "UTC-10:00", "UTC-09:00", "UTC-08:00",
+        "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00", "UTC-03:00",
+        "UTC-02:00", "UTC-01:00", "UTC+00:00 (Лондон)", "UTC+01:00 (Берлин, Париж)",
+        "UTC+02:00 (Калининград, Афины)", "UTC+03:00 (Москва, Стамбул)",
+        "UTC+04:00 (Баку, Дубай)", "UTC+05:00 (Екатеринбург, Ташкент)",
+        "UTC+06:00 (Омск, Алматы)", "UTC+07:00 (Красноярск, Бангкок)",
+        "UTC+08:00 (Иркутск, Пекин)", "UTC+09:00 (Якутск, Токио)",
+        "UTC+10:00 (Владивосток, Сидней)", "UTC+11:00", "UTC+12:00"
+    };
 }
 
-<h2 class="mb-4">Редактирование профиля</h2>
+<div class="container" style="max-width: 700px;">
+    <h2 class="mb-4">Редактирование профиля</h2>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-danger">@ViewBag.Message</div>
-}
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Message</div>
+    }
 
-<form method="post" class="bg-white p-4 rounded shadow-sm" style="max-width: 700px;">
-    <input type="hidden" name="Id" value="@Model.Id" />
+    <form method="post" class="bg-white p-4 rounded shadow-sm">
+        <input type="hidden" name="Id" value="@Model.Id" />
 
-    <div class="mb-3">
-        <label for="Email" class="form-label">Email</label>
-        <input name="Email" id="Email" class="form-control" type="email" required value="@Model.Email" />
-    </div>
-
-    <div class="mb-3">
-        <label for="Password" class="form-label">Пароль</label>
-        <input name="Password" id="Password" class="form-control" type="password" required value="@Model.Password" />
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label for="LastName" class="form-label">Фамилия</label>
-            <input name="LastName" id="LastName" class="form-control" required value="@Model.LastName" />
+        <div class="mb-3">
+            <label for="Email" class="form-label">Email</label>
+            <input name="Email" id="Email" class="form-control" type="email" required value="@Model.Email" />
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label for="FirstName" class="form-label">Имя</label>
-            <input name="FirstName" id="FirstName" class="form-control" required value="@Model.FirstName" />
+        <div class="mb-3">
+            <label for="Password" class="form-label">Пароль</label>
+            <input name="Password" id="Password" class="form-control" type="password" required value="@Model.Password" />
         </div>
-    </div>
 
-    <div class="mb-3">
-        <label for="DateOfBirth" class="form-label">Дата рождения</label>
-        <input name="DateOfBirth" id="DateOfBirth" class="form-control" type="date" required value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" />
-    </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="LastName" class="form-label">Фамилия</label>
+                <input name="LastName" id="LastName" class="form-control" required value="@Model.LastName" />
+            </div>
 
-    <div class="mb-3">
-        <label for="TimeZone" class="form-label">Часовой пояс</label>
-        <input name="TimeZone" id="TimeZone" class="form-control" placeholder="Например, Europe/Moscow" value="@Model.TimeZone" />
-    </div>
+            <div class="col-md-6 mb-3">
+                <label for="FirstName" class="form-label">Имя</label>
+                <input name="FirstName" id="FirstName" class="form-control" required value="@Model.FirstName" />
+            </div>
+        </div>
 
-    <div class="mb-3">
-        <label for="About" class="form-label">О себе</label>
-        <textarea name="About" id="About" class="form-control" rows="4" placeholder="Расскажите немного о себе...">@Model.About</textarea>
-    </div>
+        <div class="mb-3">
+            <label for="DateOfBirth" class="form-label">Дата рождения</label>
+            <input name="DateOfBirth" id="DateOfBirth" class="form-control" type="date" required value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" />
+        </div>
 
-    <div class="d-flex justify-content-between align-items-center">
-        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <div class="mb-3">
+            <label for="TimeZone" class="form-label">Часовой пояс</label>
+            <select name="TimeZone" id="TimeZone" class="form-control">
+                <option value="" disabled>-- Выберите часовой пояс --</option>
+                @foreach (var tz in timeZones)
+                {
+                    <option value="@tz" @(tz == Model.TimeZone ? "selected" : "")>@tz</option>
+                }
+            </select>
+        </div>
 
-        <a href="@Url.Action("DeleteAccount")" 
-           class="btn btn-danger"
-           onclick="return confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.');">
-            Удалить аккаунт
+        <div class="mb-3">
+            <label for="About" class="form-label">О себе</label>
+            <textarea name="About" id="About" class="form-control" rows="4" placeholder="Расскажите немного о себе..." required>@Model.About</textarea>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+
+            <a href="@Url.Action("DeleteAccount")" 
+               class="btn btn-danger"
+               onclick="return confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.');">
+                Удалить аккаунт
+            </a>
+        </div>
+    </form>
+
+    <div class="text-center mt-4">
+        <a href="@Url.Action("ExitFromAccount")" class="btn btn-outline-secondary px-5 py-2">
+            Выйти
         </a>
     </div>
-    
-</form>
+</div>

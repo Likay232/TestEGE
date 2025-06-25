@@ -319,4 +319,11 @@ public class TeacherController(TeacherService service) : Controller
         
         return RedirectToAction("Index");
     }
+    
+    public IActionResult ExitFromAccount()
+    {
+        Response.Cookies.Delete("AuthToken");
+
+        return RedirectToAction("Login", "Auth");
+    }
 }

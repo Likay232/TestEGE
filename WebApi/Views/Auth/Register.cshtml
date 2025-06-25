@@ -119,7 +119,7 @@
     </style>
 </head>
 <body>
-<form asp-controller="Auth" asp-action="Register" method="post" novalidate>
+<form asp-controller="Auth" asp-action="Register" method="post">
     <h2>Регистрация</h2>
 
     <label name="Email">Email</label>
@@ -141,7 +141,34 @@
     <input name="DateOfBirth" type="date" id="DateOfBirth" required />
 
     <label name="TimeZone">Часовой пояс</label>
-    <input name="TimeZone" type="text" id="TimeZone" placeholder="Пример: UTC+3" required />
+    <select name="TimeZone" id="TimeZone" required>
+        <option value="" disabled selected>-- Выберите часовой пояс --</option>
+        <option value="UTC-12:00">UTC-12:00</option>
+        <option value="UTC-11:00">UTC-11:00</option>
+        <option value="UTC-10:00">UTC-10:00</option>
+        <option value="UTC-09:00">UTC-09:00</option>
+        <option value="UTC-08:00">UTC-08:00</option>
+        <option value="UTC-07:00">UTC-07:00</option>
+        <option value="UTC-06:00">UTC-06:00</option>
+        <option value="UTC-05:00">UTC-05:00</option>
+        <option value="UTC-04:00">UTC-04:00</option>
+        <option value="UTC-03:00">UTC-03:00</option>
+        <option value="UTC-02:00">UTC-02:00</option>
+        <option value="UTC-01:00">UTC-01:00</option>
+        <option value="UTC+00:00">UTC+00:00 (Лондон)</option>
+        <option value="UTC+01:00">UTC+01:00 (Берлин, Париж)</option>
+        <option value="UTC+02:00">UTC+02:00 (Калининград, Афины)</option>
+        <option value="UTC+03:00">UTC+03:00 (Москва, Стамбул)</option>
+        <option value="UTC+04:00">UTC+04:00 (Баку, Дубай)</option>
+        <option value="UTC+05:00">UTC+05:00 (Екатеринбург, Ташкент)</option>
+        <option value="UTC+06:00">UTC+06:00 (Омск, Алматы)</option>
+        <option value="UTC+07:00">UTC+07:00 (Красноярск, Бангкок)</option>
+        <option value="UTC+08:00">UTC+08:00 (Иркутск, Пекин)</option>
+        <option value="UTC+09:00">UTC+09:00 (Якутск, Токио)</option>
+        <option value="UTC+10:00">UTC+10:00 (Владивосток, Сидней)</option>
+        <option value="UTC+11:00">UTC+11:00</option>
+        <option value="UTC+12:00">UTC+12:00</option>
+    </select>
 
     <label  name="Role">Роль</label>
     <select name="Role" id="Role" required>
@@ -151,7 +178,7 @@
     </select>
 
     <label    name="AboutMe">О себе</label>
-    <textarea name="AboutMe" id="AboutMe" placeholder="Расскажите немного о себе..."></textarea>
+    <textarea name="AboutMe" id="AboutMe" placeholder="Расскажите немного о себе..." required></textarea>
 
     <button type="submit">Зарегистрироваться</button>
 

@@ -103,7 +103,7 @@ public class AuthService(DataComponent component)
                 new Claim(ClaimTypes.Name, request.Email),
                 new Claim(ClaimTypes.Role, user.Role.RoleName)
             ]),
-            Expires = DateTime.UtcNow.AddHours(3),
+            Expires = DateTime.UtcNow.AddDays(31),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                 SecurityAlgorithms.HmacSha256Signature)

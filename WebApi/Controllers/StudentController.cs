@@ -134,4 +134,11 @@ public class StudentController(StudentService service) : Controller
 
         return RedirectToAction("Index");
     }
+
+    public IActionResult ExitFromAccount()
+    {
+        Response.Cookies.Delete("AuthToken");
+
+        return RedirectToAction("Login", "Auth");
+    }
 }

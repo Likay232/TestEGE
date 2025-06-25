@@ -11,5 +11,5 @@ public class Register
     public DateTime DateOfBirth { get; set; }
     public string TimeZone { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
-    public string AboutMe { get; set; } = string.Empty;
+    public string? AboutMe { get; set; } = string.Empty;
 }
