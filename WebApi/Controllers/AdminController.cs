@@ -123,9 +123,9 @@ public class AdminController(AdminService service) : Controller
 
         return View(await service.GetVariant(variantId));
     }
-
+    
     [HttpPost]
-    public async Task<IActionResult> EditVariant([FromForm] VariantDto updatedVariant)
+    public async Task<IActionResult> EditVariant([FromForm] EditVariant updatedVariant)
     {
         if (await service.EditVariant(updatedVariant))
             return RedirectToAction("Variants");
@@ -134,7 +134,7 @@ public class AdminController(AdminService service) : Controller
         ViewBag.AllExercises = await service.GetExercises();
         ViewBag.AllStudents = await service.GetStudents();
         
-        return View(updatedVariant);
+        return View(await service.GetVariant(updatedVariant.Id));
     }
 
     [HttpGet]

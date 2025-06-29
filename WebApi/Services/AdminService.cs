@@ -188,7 +188,7 @@ public class AdminService(DataComponent component, FileService fileService)
             .ToListAsync();
     }
 
-    public async Task<bool> EditVariant(VariantDto updatedVariant)
+    public async Task<bool> EditVariant(EditVariant updatedVariant)
     {
         var variantEntry = await component.Variants
             .Where(v => v.Id == updatedVariant.Id)
@@ -201,37 +201,27 @@ public class AdminService(DataComponent component, FileService fileService)
 
         foreach (var exercise in currentVariantExercises)
         {
-            if (!updatedVariant.Exercises.Exists(e => e.Id == exercise.Id))
+            if (!updatedVariant.ExerciseIds.Exists(id => id == exercise.Id))
             {
-                await component.Delete<VariantExercise>(exercise.Id);
+                await DeleteByForeignKey(component.VariantExercises, exercise.Id, "ExerciseId");
             }
         }
 
-        if (updatedVariant.Exercises.Count == 0)
+        foreach (var exerciseId in updatedVariant.ExerciseIds)
         {
-            var maxTasks = await component.Exercises.CountAsync();
-            
-            var random = new Random();
-            var amount = random.Next(1, maxTasks + 1);
-            
-            updatedVariant.Exercises = await GetRandomExercisesForVariant(amount);
-        }
-
-        foreach (var exercise in updatedVariant.Exercises)
-        {
-            if (currentVariantExercises.All(e => e.Id != exercise.Id))
+            if (currentVariantExercises.All(e => e.Id != exerciseId))
             {
                 await component.Insert(new VariantExercise
                 {
                     VariantId = variantEntry.Id,
-                    ExerciseId = exercise.Id
+                    ExerciseId = exerciseId
                 });
             }
         }
 
         foreach (var assignment in currentAssignedStudents)
         {
-            if (updatedVariant.AssignedUsers.All(s => s.Id != assignment.Id))
+            if (updatedVariant.StudentIds.All(id => id != assignment.Id))
             {
                 var variantAssignmentEntry = await component.VariantAssignments
                     .Include(v => v.Variant)
@@ -245,14 +235,15 @@ public class AdminService(DataComponent component, FileService fileService)
             }
         }
 
-        foreach (var student in updatedVariant.AssignedUsers)
+        foreach (var studentId in updatedVariant.StudentIds)
         {
-            if (currentAssignedStudents.All(a => a.Id != student.Id))
+            if (currentAssignedStudents.All(a => a.Id != studentId))
             {
                 await component.Insert(new VariantAssignment
                 {
                     VariantId = updatedVariant.Id,
-                    StudentId = student.Id
+                    TeacherId = updatedVariant.TeacherId,
+                    StudentId = studentId
                 });
             }
         }

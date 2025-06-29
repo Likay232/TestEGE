@@ -184,18 +184,19 @@
         @foreach (var teacher in ViewBag.Teachers as List<SelectListItem> ?? new List<SelectListItem>())
         {
             <option value="@teacher.Value"
-                    @(teacher.Value == Model.TeacherId.ToString() ? "selected" : "")>@teacher.Text</option>
+                    @(teacher.Value == Model.TeacherId.ToString() ? "selected" : "")>
+                @teacher.Text
+            </option>
         }
     </select>
 
-    <label>Упражнения (оставьте пустым для случайного заполнения)</label>
+    <label>Упражнения</label>
     <div class="exercises-list">
         @foreach (var exercise in ViewBag.AllExercises as List<ExerciseDto> ?? new List<ExerciseDto>())
         {
             var isChecked = Model.Exercises.Any(e => e.Id == exercise.Id);
             <div class="exercise-card" onclick="toggleCheckbox(this)">
-                <input type="checkbox" name="SelectedExerciseIds" value="@exercise.Id" @(isChecked ? "checked" : "")
-                       onclick="event.stopPropagation()"/>
+                <input type="checkbox" name="ExerciseIds" value="@exercise.Id" @(isChecked ? "checked" : "") onclick="event.stopPropagation()" />
                 <h5>Задание №@exercise.EgeNumber</h5>
                 <p>Год: @exercise.Year</p>
                 <small>Преподаватель: @exercise.TeacherLastName @exercise.TeacherFirstName</small>
@@ -213,7 +214,7 @@
         {
             var isChecked = Model.AssignedUsers.Any(s => s.Id == student.Id);
             <div class="student-item" onclick="toggleCheckbox(this)">
-                <input type="checkbox" name="SelectedStudentIds" value="@student.Id" @(isChecked ? "checked" : "") onclick="event.stopPropagation()" />
+                <input type="checkbox" name="StudentIds" value="@student.Id" @(isChecked ? "checked" : "") onclick="event.stopPropagation()" />
                 <div class="student-info">
                     <div class="student-name">@student.LastName @student.FirstName</div>
                     <div class="student-email">@student.Email</div>
