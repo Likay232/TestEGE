@@ -1,8 +1,21 @@
 ﻿@model WebApi.Infrastructure.Models.Requests.EditUser
 
 @{
-ViewBag.Title = "Редактирование пользователя";
-Layout = "_AdminLayout";
+    ViewBag.Title = "Редактирование пользователя";
+    Layout = "_AdminLayout";
+    
+    var timeZones = new List<string>
+    {
+        "UTC-12:00", "UTC-11:00", "UTC-10:00", "UTC-09:00", "UTC-08:00",
+        "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00", "UTC-03:00",
+        "UTC-02:00", "UTC-01:00", "UTC+00:00 (Лондон)", "UTC+01:00 (Берлин, Париж)",
+        "UTC+02:00 (Калининград, Афины)", "UTC+03:00 (Москва, Стамбул)",
+        "UTC+04:00 (Баку, Дубай)", "UTC+05:00 (Екатеринбург, Ташкент)",
+        "UTC+06:00 (Омск, Алматы)", "UTC+07:00 (Красноярск, Бангкок)",
+        "UTC+08:00 (Иркутск, Пекин)", "UTC+09:00 (Якутск, Токио)",
+        "UTC+10:00 (Владивосток, Сидней)", "UTC+11:00", "UTC+12:00"
+    };
+    
 }
 
 <style>
@@ -12,7 +25,7 @@ Layout = "_AdminLayout";
         padding: 25px;
         background-color: #f9f9f9;
         border-radius: 12px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         font-family: sans-serif;
     }
 
@@ -73,10 +86,15 @@ Layout = "_AdminLayout";
     <input id="LastName" name="LastName" type="text" required value="@Model.LastName" />
 
     <label for="DateOfBirth">Дата рождения</label>
-    <input id="DateOfBirth" name="DateOfBirth" type="date" required value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" />
+    <input id="DateOfBirth" name="DateOfBirth" type="date" required value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" max="@DateTime.UtcNow.ToString("yyyy-MM-dd")"/>
 
     <label for="TimeZone">Часовой пояс</label>
-    <input id="TimeZone" name="TimeZone" type="text" required value="@Model.TimeZone" />
+    <select id="TimeZone" name="TimeZone" required>
+        @foreach (var zone in timeZones)
+        {
+            <option value="@zone" @(zone == Model.TimeZone ? "selected" : "")>@zone</option>
+        }
+    </select>
 
     <label for="RoleName">Роль</label>
     <select id="RoleName" name="RoleName" required>
@@ -88,7 +106,9 @@ Layout = "_AdminLayout";
     <textarea id="About" name="About" rows="3">@Model.About</textarea>
 
     <label for="BlockedUntil">Заблокирован до (если применимо)</label>
-    <input id="BlockedUntil" name="BlockedUntil" type="datetime-local" value="@(Model.BlockedUntil?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
+    <input id="BlockedUntil" name="BlockedUntil" type="datetime-local"
+           value="@(Model.BlockedUntil?.ToString("yyyy-MM-ddTHH:mm") ?? "")"
+           />
 
     <button type="submit">Сохранить</button>
 </form>
@@ -99,4 +119,3 @@ Layout = "_AdminLayout";
         @ViewBag.Message
     </div>
 }
-

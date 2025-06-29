@@ -113,6 +113,41 @@
 
 @section Scripts {
     <script>
+        let durationInMinutes = 235;
+        let timeLeft = durationInMinutes * 60;
+        let timerInterval;
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById("timer").textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft < 0) {
+                    clearInterval(timerInterval);
+                    alert("Время вышло! Ответы будут отправлены.");
+                    document.getElementById("variantForm").submit();
+                }
+            }, 1000);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateTimerDisplay(); // отображаем стартовое значение 3:55:00
+
+            document.getElementById('startExamBtn').addEventListener('click', () => {
+                document.getElementById('infoSection').style.display = 'none';
+                document.getElementById('variantForm').style.display = 'block';
+                showStep(currentStep);
+                startTimer();
+            });
+        });
+
         let currentStep = 0;
         const steps = document.querySelectorAll('.exercise-step');
 
@@ -134,31 +169,6 @@
                 currentStep--;
                 showStep(currentStep);
             }
-        });
-
-        let durationInMinutes = 0.1;
-        let timeLeft = durationInMinutes * 60;
-        let timerInterval;
-
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById("timer").textContent =
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                if (--timeLeft < 0) {
-                    clearInterval(timerInterval);
-                    alert("Время вышло! Ответы будут отправлены.");
-                    document.getElementById("variantForm").submit();
-                }
-            }, 1000);
-        }
-
-        document.getElementById('startExamBtn').addEventListener('click', () => {
-            document.getElementById('infoSection').style.display = 'none';
-            document.getElementById('variantForm').style.display = 'block';
-            showStep(currentStep);
-            startTimer();
         });
     </script>
 }
