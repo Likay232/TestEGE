@@ -69,7 +69,7 @@ public class TeacherService(DataComponent component, FileService fileService)
     {
         return await component.Exercises
             .Include(ex => ex.Teacher)
-            .Where(ex => ex.TeacherId == userId)
+            .Where(ex => ex.TeacherId == userId && ex.ModerationPassed)
             .Select(ex => new ExerciseDto
             {
                 Id = ex.Id,

@@ -60,10 +60,10 @@
     <input type="hidden" name="Id" value="@Model.Id" />
 
     <label for="Year">Год</label>
-    <input id="Year" name="Year" type="number" required value="@Model.Year" />
+    <input id="Year" name="Year" type="number" required value="@Model.Year" min="0"/>
 
     <label for="EgeNumber">Номер ЕГЭ</label>
-    <input id="EgeNumber" name="EgeNumber" type="number" required value="@Model.EgeNumber" />
+    <input id="EgeNumber" name="EgeNumber" type="number" required value="@Model.EgeNumber" min="0"/>
 
     <label for="Text">Текст задания</label>
     <textarea id="Text" name="Text" rows="4" required>@Model.Text</textarea>
@@ -72,7 +72,7 @@
     <input id="Answer" name="Answer" type="text" required value="@Model.Answer" />
     
     <label for="PrimaryScore" class="form-label">Количество первичных баллов за задание</label>
-    <input type="number" id="PrimaryScore" name="PrimaryScore" class="form-control" value="@Model.PrimaryScore" required/>
+    <input type="number" id="PrimaryScore" name="PrimaryScore" class="form-control" value="@Model.PrimaryScore" required min="0"/>
 
     <label for="ExerciseFile">Файл задания</label>
     <input id="ExerciseFile" name="ExerciseFile" type="file" />

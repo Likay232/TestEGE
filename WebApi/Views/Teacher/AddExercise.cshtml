@@ -22,12 +22,12 @@
 <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm" style="max-width:700px;">
     <div class="mb-3">
         <label for="Year" class="form-label">Год</label>
-        <input type="number" id="Year" name="Year" class="form-control" value="@year" required />
+        <input type="number" id="Year" name="Year" class="form-control" value="@year" required min="0"/>
     </div>
 
     <div class="mb-3">
         <label for="EgeNumber" class="form-label">Номер ЕГЭ</label>
-        <input type="number" id="EgeNumber" name="EgeNumber" class="form-control" value="@egeNumber" required />
+        <input type="number" id="EgeNumber" name="EgeNumber" class="form-control" value="@egeNumber" required min="0"/>
     </div>
 
     <div class="mb-3">
@@ -42,7 +42,7 @@
     
     <div class="mb-3">
         <label for="PrimaryScore" class="form-label">Количество первичных баллов за задание</label>
-        <input type="number" id="PrimaryScore" name="PrimaryScore" class="form-control" value="@primaryScore" required/>
+        <input type="number" id="PrimaryScore" name="PrimaryScore" class="form-control" value="@primaryScore" required min="0"/>
     </div>
 
     <div class="mb-3 form-check">
