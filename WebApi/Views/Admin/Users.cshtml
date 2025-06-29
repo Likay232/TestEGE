@@ -42,7 +42,8 @@
                     Редактировать пользователя
                 </a>
                 <a class="btn btn-sm btn-secondary ms-2"
-                   href="@Url.Action("DeleteUser", "Admin", new { userId = user.Id })">
+                   href="@Url.Action("DeleteUser", "Admin", new { userId = user.Id })"
+                   onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?');">
                     Удалить пользователя
                 </a>
             </td>

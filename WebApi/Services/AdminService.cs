@@ -86,7 +86,7 @@ public class AdminService(DataComponent component, FileService fileService)
         userEntry.TimeZone = user.TimeZone;
         userEntry.RoleId = roleEntry.Id;
 
-        await UpdateBlockStatusAsync(user.Id, user.BlockedUntil);
+        await UpdateBlockStatusAsync(userEntry.Id, user.BlockedUntil);
 
         return await component.Update(userEntry);
     }

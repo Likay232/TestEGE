@@ -87,7 +87,7 @@ public class AuthService(DataComponent component)
         var blockEntry = await component.BlockUsers
             .FirstOrDefaultAsync(b => b.UserId == user.Id);
 
-        if (blockEntry != null && blockEntry.BlockedUntil < DateTime.UtcNow)
+        if (blockEntry != null && blockEntry.BlockedUntil > DateTime.UtcNow)
             return null;
 
         if (blockEntry != null)
