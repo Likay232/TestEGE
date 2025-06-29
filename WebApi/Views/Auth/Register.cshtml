@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>Регистрация</title>
     <style>
         body {
@@ -22,7 +22,7 @@
             background: #fff;
             padding: 30px 40px;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 420px;
             box-sizing: border-box;
@@ -70,7 +70,7 @@
         textarea:focus {
             border-color: #3f83f8;
             outline: none;
-            box-shadow: 0 0 8px rgba(63,131,248,0.25);
+            box-shadow: 0 0 8px rgba(63, 131, 248, 0.25);
         }
 
         textarea {
@@ -89,13 +89,13 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.25s ease, box-shadow 0.25s ease;
-            box-shadow: 0 5px 15px rgba(63,131,248,0.4);
+            box-shadow: 0 5px 15px rgba(63, 131, 248, 0.4);
             user-select: none;
         }
 
         button:hover {
             background: #3366d6;
-            box-shadow: 0 8px 20px rgba(51,102,214,0.6);
+            box-shadow: 0 8px 20px rgba(51, 102, 214, 0.6);
         }
 
         .footer {
@@ -123,22 +123,22 @@
     <h2>Регистрация</h2>
 
     <label name="Email">Email</label>
-    <input name="Email" type="email" id="Email" placeholder="example@mail.com" required />
+    <input name="Email" type="email" id="Email" placeholder="example@mail.com" required/>
 
     <label name="Password">Пароль</label>
-    <input name="Password" type="password" id="Password" placeholder="Введите пароль" required />
+    <input name="Password" type="password" id="Password" placeholder="Введите пароль" required/>
 
     <label name="ConfirmPassword">Подтверждение пароля</label>
-    <input name="ConfirmPassword" type="password" id="ConfirmPassword" placeholder="Повторите пароль" required />
+    <input name="ConfirmPassword" type="password" id="ConfirmPassword" placeholder="Повторите пароль" required/>
 
     <label name="FirstName">Имя</label>
-    <input name="FirstName" type="text" id="FirstName" placeholder="Ваше имя" required />
+    <input name="FirstName" type="text" id="FirstName" placeholder="Ваше имя" required/>
 
     <label name="LastName">Фамилия</label>
-    <input name="LastName" type="text" id="LastName" placeholder="Ваша фамилия" required />
+    <input name="LastName" type="text" id="LastName" placeholder="Ваша фамилия" required/>
 
     <label name="DateOfBirth">Дата рождения</label>
-    <input name="DateOfBirth" type="date" id="DateOfBirth" required />
+    <input name="DateOfBirth" type="date" id="DateOfBirth" required max="@DateTime.UtcNow.ToString("yyyy-MM-dd")"/>
 
     <label name="TimeZone">Часовой пояс</label>
     <select name="TimeZone" id="TimeZone" required>
@@ -170,14 +170,14 @@
         <option value="UTC+12:00">UTC+12:00</option>
     </select>
 
-    <label  name="Role">Роль</label>
+    <label name="Role">Роль</label>
     <select name="Role" id="Role" required>
         <option value="" disabled selected>-- Выберите роль --</option>
-        <option value="Student">Student</option>
-        <option value="Teacher">Teacher</option>
+        <option value="Student">Учащийся</option>
+        <option value="Teacher">Преподаватель</option>
     </select>
 
-    <label    name="AboutMe">О себе</label>
+    <label name="AboutMe">О себе</label>
     <textarea name="AboutMe" id="AboutMe" placeholder="Расскажите немного о себе..." required></textarea>
 
     <button type="submit">Зарегистрироваться</button>

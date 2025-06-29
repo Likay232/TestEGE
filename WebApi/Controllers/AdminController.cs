@@ -187,4 +187,13 @@ public class AdminController(AdminService service) : Controller
         }
     }
 
+    [HttpGet]
+    public IActionResult ExitFromAccount()
+    {
+        Response.Cookies.Delete("AuthToken");
+
+        return RedirectToAction("Login", "Auth");
+    }
+
+
 }

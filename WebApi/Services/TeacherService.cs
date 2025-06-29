@@ -253,7 +253,21 @@ public class TeacherService(DataComponent component, FileService fileService)
 
         await component.Insert(newVariant);
 
-        foreach (var exercise in request.Exercises)
+        var exerciseIds = request.Exercises;
+
+        if (exerciseIds == null || exerciseIds.Count == 0)
+        {
+            var maxTasks = await component.Exercises
+                .Where(e => e.TeacherId == request.TeacherId)
+                .CountAsync();
+
+            var random = new Random();
+            var amount = random.Next(1, maxTasks + 1);
+
+            exerciseIds = await GetRandomExercisesForVariant(amount, request.TeacherId);
+        }
+
+        foreach (var exercise in exerciseIds)
         {
             var newVariantExercise = new VariantExercise
             {
@@ -264,19 +278,34 @@ public class TeacherService(DataComponent component, FileService fileService)
             await component.Insert(newVariantExercise);
         }
 
-        foreach (var user in request.AssignedUsers)
-        {
-            var newAssignment = new VariantAssignment
+        if (request.AssignedUsers != null)
+            foreach (var user in request.AssignedUsers)
             {
-                VariantId = newVariant.Id,
-                StudentId = user,
-                TeacherId = newVariant.TeacherId,
-            };
+                var newAssignment = new VariantAssignment
+                {
+                    VariantId = newVariant.Id,
+                    StudentId = user,
+                    TeacherId = newVariant.TeacherId,
+                };
 
-            await component.Insert(newAssignment);
-        }
+                await component.Insert(newAssignment);
+            }
 
         return true;
+    }
+
+    private async Task<List<int>> GetRandomExercisesForVariant(int amount, int teacherId)
+    {
+        var random = new Random();
+
+        var allExercises = await component.Exercises.ToListAsync();
+
+        return allExercises
+            .Where(e => e.TeacherId ==  teacherId)
+            .OrderBy(x => random.Next())
+            .Take(amount)
+            .Select(x => x.Id)
+            .ToList();
     }
 
     public async Task<bool> EditVariant(EditVariant updatedVariant)

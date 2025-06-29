@@ -207,6 +207,16 @@ public class AdminService(DataComponent component, FileService fileService)
             }
         }
 
+        if (updatedVariant.Exercises.Count == 0)
+        {
+            var maxTasks = await component.Exercises.CountAsync();
+            
+            var random = new Random();
+            var amount = random.Next(1, maxTasks + 1);
+            
+            updatedVariant.Exercises = await GetRandomExercisesForVariant(amount);
+        }
+
         foreach (var exercise in updatedVariant.Exercises)
         {
             if (currentVariantExercises.All(e => e.Id != exercise.Id))
@@ -252,6 +262,23 @@ public class AdminService(DataComponent component, FileService fileService)
 
         return await component.Update(variantEntry);
     }
+    
+    private async Task<List<ExerciseDto>> GetRandomExercisesForVariant(int amount)
+    {
+        var random = new Random();
+
+        var allExercises = await component.Exercises.ToListAsync();
+
+        return allExercises
+            .OrderBy(x => random.Next())
+            .Take(amount)
+            .Select(x => new ExerciseDto
+            {
+                Id = x.Id,
+            })
+            .ToList();
+    }
+
 
     public async Task<List<UserDto>> GetStudents()
     {

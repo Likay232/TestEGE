@@ -113,7 +113,7 @@ public class TeacherController(TeacherService service) : Controller
     {
         var userId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
-        ViewBag.AllExercises = await service.GetAllExercises();
+        ViewBag.AllExercises = await service.GetMyExercises(userId);
         ViewBag.AllStudents = await service.GetStudents();
 
         return View(await service.GetVariant(variantId));
@@ -147,22 +147,12 @@ public class TeacherController(TeacherService service) : Controller
     [HttpPost]
     public async Task<IActionResult> AddVariant([FromForm] AddVariant newVariant)
     {
-        if (newVariant.Exercises.Count == 0)
-        {
-            ViewBag.Message = "Не назначены задания для варианта.";
-        }
-
-        if (newVariant.AssignedUsers.Count == 0)
-        {
-            ViewBag.Message = "Не назначены студенты для варианта.";
-        }
-        
         var teacherId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         
         newVariant.TeacherId = teacherId;
         
         if (await service.AddVariant(newVariant))
-            return RedirectToAction(nameof(MyExercises));
+            return RedirectToAction(nameof(MyVariants));
         
         ViewBag.Message = "Ошибка при добавлении варианта.";
         
